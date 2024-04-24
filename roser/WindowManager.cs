@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using static roser.native.User32;
-using static roser.native.GDI32;
 using roser.native;
 using System.Diagnostics;
 using roser.i18n;
