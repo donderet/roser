@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+	<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+	<SignAssembly>False</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="native\DWrite\**" />
+    <EmbeddedResource Remove="native\DWrite\**" />
+    <None Remove="native\DWrite\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JeremyAnsel.DirectX.D2D1" Version="3.0.31" />
+    <PackageReference Include="JeremyAnsel.DirectX.D3D11" Version="3.0.31" />
+  </ItemGroup>
+
+</Project>

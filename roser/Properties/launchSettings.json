@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "roser": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "hotReloadEnabled": false
+    }
+  }
+}
