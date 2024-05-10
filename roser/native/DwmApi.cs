@@ -2,10 +2,9 @@
 
 namespace roser.native
 {
-    internal class DwmApi
+    internal partial class DwmApi
 	{
-		[DllImport("dwmapi.dll")]
-		public static extern int DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute dwAttribute, ref int pvAttribute, int cbAttribute);
-
+		[LibraryImport("dwmapi.dll")]
+		public static partial int DwmSetWindowAttribute(nint hwnd, DwmWindowAttribute dwAttribute, ref int pvAttribute, int cbAttribute);
 	}
 }
