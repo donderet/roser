@@ -51,12 +51,11 @@ namespace roser.scenes
 			renderTarget.Clear();
 			D2D1Point2F textPoint = new(startGameBounds.Left, startGameBounds.Top);
 			renderTarget.DrawTextLayout(textPoint, startTextLayout, brush);
-			//renderTarget.FillEllipse(ellipse, brush);
 		}
 
-		public override void OnTick(int deltaTime)
+		public override void OnTick(double dt)
 		{
-			//LogI("Microseconds ellapsed since last tick: " + deltaTime);
+
 		}
 	}
 }

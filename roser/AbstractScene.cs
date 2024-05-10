@@ -5,7 +5,7 @@ using roser.i18n;
 
 namespace roser
 {
-	abstract class AbstractScene : IDisposable
+	abstract class AbstractScene : IDisposable, IPhysicsObject
 	{
 		public WindowManager WndManager { get; set; }
 
@@ -28,7 +28,7 @@ namespace roser
 			return percent * SmallerDimension / 100;
 		}
 
-		public abstract void OnTick(int deltaTime);
+		public abstract void OnTick(double dt);
 
 		protected virtual void DisposeView()
 		{

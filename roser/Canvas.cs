@@ -1,5 +1,4 @@
 ﻿using static roser.native.User32;
-using static roser.Logger;
 using JeremyAnsel.DirectX.D3D11;
 using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
@@ -145,32 +144,26 @@ namespace roser
 				Scaling = DxgiScaling.None,
 				SwapEffect = DxgiSwapEffect.FlipSequential,
 				AlphaMode = DxgiAlphaMode.Ignore,
-				Options = DxgiSwapChainOptions.None
+				Options = (DxgiSwapChainOptions)2048,
+
 			};
-
-			//DxgiSwapChainFullscreenDesc? swapChainFullscreenDesc = null;
-
-			/*if (this.D3DDriverType == D3D11DriverType.Hardware)
+			DxgiSwapChainFullscreenDesc? swapChainFullscreenDesc = new()
 			{
-				swapChainFullscreenDesc = new DxgiSwapChainFullscreenDesc
-				{
-					IsWindowed = true,
-					RefreshRate = new DxgiRational(),
-					Scaling = DxgiModeScaling.Unspecified,
-					ScanlineOrdering = DxgiModeScanlineOrder.Unspecified
-				};
-			}*/
+				IsWindowed = true,
+				RefreshRate = new DxgiRational(),
+				Scaling = DxgiModeScaling.Unspecified,
+				ScanlineOrdering = DxgiModeScanlineOrder.Unspecified
+			};
 			using var dxgiDevice = new DxgiDevice3(device.Handle);
 			using var dxgiAdapter = dxgiDevice.GetAdapter();
 			using var dxgiFactory = dxgiAdapter.GetParent();
-
 			try
 			{
 				swapChain = dxgiFactory.CreateSwapChainForWindowHandle(
 					device.Handle,
 					Hwnd,
 					swapChainDesc,
-					null,
+					swapChainFullscreenDesc,
 					null);
 			}
 			catch (Exception ex)
@@ -179,18 +172,17 @@ namespace roser
 					throw;
 				swapChainDesc.SwapEffect = DxgiSwapEffect.Sequential;
 
-
-
 				swapChain = dxgiFactory.CreateSwapChainForWindowHandle(
 				device.Handle,
 				Hwnd,
 				swapChainDesc,
-				null,
+				swapChainFullscreenDesc,
 				null);
 
 				dxgiDevice.MaximumFrameLatency = 1;
 			}
 
+			dxgiFactory.MakeWindowAssociation(Hwnd, DxgiWindowAssociationOptions.NoAltEnter);
 			if (Roser.SaveFile.IsFullscreen)
 			{
 				swapChain.SetFullscreenState(true);
@@ -207,7 +199,7 @@ namespace roser
 
 			try
 			{
-				swapChain.ResizeBuffers(0, 0, 0, DxgiFormat.Unknown, DxgiSwapChainOptions.None);
+				swapChain.ResizeBuffers(0, 0, 0, DxgiFormat.Unknown, (DxgiSwapChainOptions)2048);
 				backBuffer = swapChain.GetTexture2D(0);
 			}
 			catch (Exception ex)
@@ -220,6 +212,8 @@ namespace roser
 			return true;
 		}
 
+		// We need to draw something on the buffer in order to actually *free* memory from released resources
+		// Great API design by Microsoft, as always
 		public void ResizeWindowSizeDependentResources()
 		{
 			D3D11RenderTargetViewDesc renderTargetViewDesc = new(D3D11RtvDimension.Texture2D);
@@ -241,16 +235,14 @@ namespace roser
 			};
 			deviceContext.RasterizerStageSetViewports([viewport]);
 			using var surface = new DxgiSurface2(backBuffer.Handle);
-			d2dFactory.GetDesktopDpi(out var dpiX, out var dpiY);
-			DisplayInfo.DipScale = dpiX / 96d;
-			DisplayInfo.DipScale = dpiY / 96d;
 			D2D1RenderTargetProperties properties = new(
 				D2D1RenderTargetType.Default,
 				new(format, D2D1AlphaMode.Premultiplied),
-				dpiX,
-				dpiY,
+				DisplayInfo.Dpi,
+				DisplayInfo.Dpi,
 				D2D1RenderTargetUsages.None,
-				D2D1FeatureLevel.Default);
+				D2D1FeatureLevel.Default
+			);
 
 			renderTarget = d2dFactory.CreateDxgiSurfaceRenderTarget(surface, properties);
 			D3D11RasterizerDesc rasterizerStateDesc = new(D3D11FillMode.Solid, D3D11CullMode.Back, false, 0, 0.0f, 0.0f, true, false, true, false);
@@ -259,16 +251,18 @@ namespace roser
 			deviceContext.RasterizerStageSetState(rasterizerState);
 			if (CurrentScene != null)
 			{
-				GetClientRect(Hwnd, out var bounds);
-				CurrentScene.Width = (uint)(bounds.Width / DisplayInfo.DipScale);
-				CurrentScene.Height = (uint)(bounds.Height / DisplayInfo.DipScale);
-				CurrentScene.SmallerDimension = CurrentScene.Width > CurrentScene.Height ? CurrentScene.Height : CurrentScene.Width;
-				CurrentScene.CreateResources(renderTarget, dwritefactory);
-				CurrentScene.CalculateLayout(renderTarget, dwritefactory);
-				// We need to draw something on the buffer in order to release resources
-				// Great API design by Microsoft, as always
-				DrawCurrentScene();
+				InitScene(CurrentScene);
 			}
+		}
+
+		public void InitScene(AbstractScene scene)
+		{
+			GetClientRect(Hwnd, out var bounds);
+			scene.Width = (uint)(bounds.Width / DisplayInfo.DipScale);
+			scene.Height = (uint)(bounds.Height / DisplayInfo.DipScale);
+			scene.SmallerDimension = scene.Width > scene.Height ? scene.Height : scene.Width;
+			scene.CreateResources(renderTarget, dwritefactory);
+			scene.CalculateLayout(renderTarget, dwritefactory);
 		}
 
 		private void OnDeviceLost()
@@ -292,6 +286,11 @@ namespace roser
 				LogW("Tried to draw on zero height");
 				return;
 			}
+			if (renderTarget == null)
+			{
+				LogE("Render target is null, great");
+				return;
+			}
 			renderTarget.BeginDraw();
 			scene.Render(renderTarget);
 			try
@@ -300,6 +299,7 @@ namespace roser
 			}
 			catch (Exception e)
 			{
+				LogW($"Error while calling EndDraw: {e}");
 				if (e.HResult == D2D1Error.RecreateTarget)
 				{
 					OnDeviceLost();
@@ -307,14 +307,29 @@ namespace roser
 				}
 				throw;
 			}
-			swapChain.Present(1, DxgiPresentOptions.None);
+			try
+			{
+				DxgiPresentOptions options = fullScreen ? DxgiPresentOptions.None : (DxgiPresentOptions)0x00000200UL;
+				swapChain.Present(0, options);
+			}
+			catch (Exception e)
+			{
+				LogE("Couldn't present. Error code: " + e.HResult);
+			}
+		}
+
+		private bool fullScreen = false;
+
+		public void SetFullScreen(bool fullScreen)
+		{
+			this.fullScreen = fullScreen;
+			swapChain.SetFullscreenState(fullScreen);
 		}
 
 		public void OnMessage(WM msg, nint wParam,
 			nint lParam)
 		{
-			CurrentScene?.OnMessage(msg, wParam,
-				lParam);
+			CurrentScene?.OnMessage(msg, wParam, lParam);
 		}
 
 		private bool disposed;
@@ -334,7 +349,7 @@ namespace roser
 
 		~Canvas()
 		{
-			Dispose(disposing: false);
+			Dispose(false);
 		}
 
 		public void Dispose()

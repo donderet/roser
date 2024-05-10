@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using static roser.native.User32;
+using static roser.native.DwmApi;
 using roser.native;
 using System.Diagnostics;
 using roser.i18n;
@@ -8,11 +9,16 @@ namespace roser
 {
 	class WindowManager : IDisposable
 	{
+		public static double FrameTime { get; private set; }
+		public static double TickTime { get; private set; }
+
 		private const string WindowName = "2k25 game";
 
 		private nint handle;
 
 		private readonly Canvas canvas;
+
+		private bool fullScreen = false;
 
 		public WindowManager()
 		{
@@ -31,7 +37,6 @@ namespace roser
 			{
 				throw new Exception("Could not register window class. Error code: " + Marshal.GetLastWin32Error());
 			}
-			Process.GetCurrentProcess().ProcessorAffinity = 1;
 
 			handle = CreateWindowExW(
 				WsEx.OverlappedWindow,
@@ -40,32 +45,31 @@ namespace roser
 				WS.OverlappedWindow | WS.SysMenu | WS.Caption,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
-				CW_USEDEFAULT,
-				CW_USEDEFAULT,
+				1500,
+				1500,
 				nint.Zero,
 				nint.Zero,
 				nint.Zero,
 				nint.Zero
 			);
+			int darkMode = 1;
+			// Undocumented support since W10 20H1
+			int hres = DwmSetWindowAttribute(handle, DwmWindowAttribute.UseImmersiveDarkMode, ref darkMode, 4);
+			if (hres != 0)
+				LogI(string.Format("DwmSetWindowAttribute failed: 0X{0:x}", hres));
+			SetDisplayInfo();
 			canvas = new Canvas(handle);
 		}
 
 		public void ShowWindow()
 		{
-			Stopwatch stopwatch = new();
 			User32.ShowWindow(handle, SW.Normal);
 			//SetWindowDisplayAffinity(handle, 0x00000000);
 			MSG msg = new();
 			while (msg.message != WM.Paint)
 			{
-				int result;
-				if ((result = GetMessageW(out msg, nint.Zero, 0, 0)) != 0)
+				if (GetMessageW(out msg, nint.Zero, 0, 0) != 0)
 				{
-					if (result == -1)
-						throw new Exception(
-							"Failed to get message. Error code " +
-								Marshal.GetLastWin32Error()
-							);
 					TranslateMessage(ref msg);
 					DispatchMessageW(ref msg);
 				}
@@ -78,21 +82,24 @@ namespace roser
 					TranslateMessage(ref msg);
 					DispatchMessageW(ref msg);
 				}
-				else
-				{
-					const long timerTicksPerMillisecond = 10000;
-					// 78125 ticks
-					// 7,8125 millis
-					const long targetTickRate = 1000 * timerTicksPerMillisecond / 128;
-					long ticks = stopwatch.ElapsedTicks;
-					if (ticks > targetTickRate)
-					{
-						canvas.CurrentScene?.OnTick((int)(ticks / timerTicksPerMillisecond));
-						stopwatch.Restart();
-					}
-					canvas.DrawCurrentScene();
-				}
+				Tick();
 			}
+		}
+
+		public static readonly Stopwatch stopwatch = new();
+
+		public void Tick()
+		{
+			long ticks = stopwatch.ElapsedTicks;
+			if (ticks >= IPhysicsObject.targetTickTime)
+			{
+				canvas.CurrentScene?.OnTick(ticks / 10_000d);
+				TickTime = (stopwatch.ElapsedTicks - ticks) / 10_000d;
+				stopwatch.Restart();
+				ticks = 0;
+			}
+			canvas.DrawCurrentScene();
+			FrameTime = (stopwatch.ElapsedTicks - ticks) / 10_000d;
 		}
 
 		public void SetScene<T>()
@@ -104,6 +111,7 @@ namespace roser
 				WndManager = this,
 			};
 			//GetClientRect(handle, out var bounds);
+			canvas.InitScene(scene);
 			canvas.CurrentScene?.Dispose();
 			canvas.CurrentScene = scene;
 		}
@@ -112,26 +120,46 @@ namespace roser
 
 		private nint WndProc(nint hWnd, WM msg, nint wParam, nint lParam)
 		{
-			//if (msg != WM.NCHITTEST && msg != WM.SETCURSOR && msg != WM.MOUSEFIRST && msg != WM.MOUSEMOVE)
-			//Console.WriteLine("Got message: " + msg);
+			if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove)
+				LogI("" + msg);
+			//if (msg == WM.SysCommand)
+			//{
+			//	LogI("Recieved syscom");
+			//	LogI("wParam: " + wParam);
+			//	LogI("lParam: " + lParam);
+			//}
 			switch (msg)
 			{
+				// Any titlebar click blocks the thread until the mouse button is released
+				// EnterSizeMove has a huge delay, using SysCommand is a better option
+				// Great API design by Microsoft, as always
+				case WM.SysCommand:
+					// Undocumented values (thanks, Microsoft):
+					// 0xF012 - just title bar click
+					// 0xF000 - right corner resize, but documented as resize ???
+					// 0xF001 - left corner resize
+					// 0xF006 - bottom corner resize
+					//if (wParam != 0xF012 && wParam != 0xF010 && wParam != 0xF002 && wParam != 0xF000 && wParam != 0xF001 && wParam != 0xF006)
+					//	break;
+					break;
+				case WM.Activate:
+					canvas.SetFullScreen(fullScreen);
+					break;
+				case WM.ExitSizeMove:
+
+					break;
 				case WM.GetMinMaxInfo:
 				case WM.NcCreate:
 				case WM.NcCalcSize:
 				case WM.ShowWindow:
 				case WM.WindowPosChanging:
 				case WM.WindowPosChanged:
-				case WM.ActivatApp:
-				case WM.Activate:
-				case WM.NcActivate:
 				case WM.GetIcon:
 				case WM.ImeSetContext:
 				case WM.ImeNotify:
 				case WM.SetFocus:
 					break;
 				case WM.Create:
-					SetDisplayInfo();
 					break;
 				// Handle setup with multiple monitors
 				case WM.DpiChanged:
@@ -156,12 +184,13 @@ namespace roser
 						break;
 					int newWidth = (int)lParam & 0xffff;
 					int newHeight = (int)(lParam >> 16) & 0xffff;
-					// SIZE_MAXIMIZED
-					if (wParam == 2 && canvas.GetWidth() == newWidth &&
-					canvas.GetHeight() == newHeight)
+					if (canvas == null || (canvas.GetWidth() == newWidth &&
+						canvas.GetHeight() == newHeight))
 						break;
 					if (canvas.ResizeSwapChain())
 						canvas.ResizeWindowSizeDependentResources();
+					// Needed to free resources and keep the game updated
+					Tick();
 					break;
 				case WM.EraseBkgnd:
 					return 1;
@@ -173,7 +202,12 @@ namespace roser
 					PostQuitMessage(0);
 					return nint.Zero;
 				default:
-					canvas.OnMessage(msg, wParam, lParam);
+					if (msg == WM.KeyUp && wParam == 0x7A)
+					{
+						canvas.SetFullScreen(fullScreen = !fullScreen);
+						return 0;
+					}
+					canvas?.OnMessage(msg, wParam, lParam);
 					break;
 			}
 

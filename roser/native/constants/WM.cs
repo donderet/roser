@@ -27,7 +27,7 @@
         WinIniChange = 0x001A,
         SettingChange = WinIniChange,
         DevModeChange = 0x001B,
-        ActivatApp = 0x001C,
+        ActivateApp = 0x001C,
         FontChange = 0x001D,
         TimeChange = 0x001E,
         CancelMode = 0x001F,

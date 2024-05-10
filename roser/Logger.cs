@@ -1,4 +1,6 @@
-﻿namespace roser
+﻿global using static roser.Logger;
+
+namespace roser
 {
 	internal class Logger
 	{
