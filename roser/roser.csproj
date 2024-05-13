@@ -11,6 +11,7 @@
 	<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 	<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
 	<SignAssembly>False</SignAssembly>
+	<Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -57,7 +57,33 @@ namespace roser.native
 
 		[LibraryImport("usеr32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool SetWindowDisplayAffinity(nint hwnd, uint dwAffinity);
+		public static partial bool SetWindowDisplayAffinity(nint hwnd, uint dwAffinity);	
+
+		[LibraryImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static partial bool SetWindowLongPtrW(nint hwnd, int nIndex, nint dwNewLong);
+
+		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+		internal struct MonitorInfoExW
+		{
+			public int cbSize;
+			public Rectangle rcMonitor;
+			public Rectangle rcWork;
+			public int dwFlags;
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+			public string szDevice;
+		}
+
+		[DllImport("user32.dll")]
+		public static extern int GetMonitorInfoW(nint hMonitor, out MonitorInfoExW lpmi);
+
+		[LibraryImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.U8)]
+		public static partial ulong MonitorFromWindow(nint hwnd, int dwFlags);
+
+		[LibraryImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.U8)]
+		public static partial ulong GetWindowLongPtrW(nint hwnd, int nIndex);
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -106,6 +132,12 @@ namespace roser.native
 
 		[LibraryImport("user32.dll")]
 		public static partial void PostQuitMessage(int nExitCode);
+
+		[LibraryImport("user32.dll")]
+		public static partial void SendMessageW(nint hwnd, WM msg, nint wParam, nint lParam);
+
+		[LibraryImport("user32.dll")]
+		public static partial void PostMessageW(nint hwnd, WM msg, nint wParam, nint lParam);
 
 		[LibraryImport("user32.dll")]
 		public static partial IntPtr LoadIconW(

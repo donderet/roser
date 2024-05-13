@@ -20,6 +20,10 @@ namespace roser
 
 		private bool fullScreen = false;
 
+		private bool minimized = false;
+
+		private const WS defaultWindowStyle = WS.OverlappedWindow | WS.SysMenu | WS.Caption;
+
 		public WindowManager()
 		{
 			const string className = "Window";
@@ -42,7 +46,7 @@ namespace roser
 				WsEx.OverlappedWindow,
 				className,
 				WindowName,
-				WS.OverlappedWindow | WS.SysMenu | WS.Caption,
+				defaultWindowStyle,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
 				1500,
@@ -56,7 +60,7 @@ namespace roser
 			// Undocumented support since W10 20H1
 			int hres = DwmSetWindowAttribute(handle, DwmWindowAttribute.UseImmersiveDarkMode, ref darkMode, 4);
 			if (hres != 0)
-				LogI(string.Format("DwmSetWindowAttribute failed: 0X{0:x}", hres));
+				LogI(string.Format("DwmSetWindowAttribute failed: 0x{0:x}", hres));
 			SetDisplayInfo();
 			canvas = new Canvas(handle);
 		}
@@ -98,6 +102,8 @@ namespace roser
 				stopwatch.Restart();
 				ticks = 0;
 			}
+			if (minimized)
+				return;
 			canvas.DrawCurrentScene();
 			FrameTime = (stopwatch.ElapsedTicks - ticks) / 10_000d;
 		}
@@ -110,7 +116,6 @@ namespace roser
 				Language = new UkrainianLanguage(),
 				WndManager = this,
 			};
-			//GetClientRect(handle, out var bounds);
 			canvas.InitScene(scene);
 			canvas.CurrentScene?.Dispose();
 			canvas.CurrentScene = scene;
@@ -120,7 +125,7 @@ namespace roser
 
 		private nint WndProc(nint hWnd, WM msg, nint wParam, nint lParam)
 		{
-			if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove)
+			if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove && msg != WM.NcHitTest && msg != WM.NcMouseMove)
 				LogI("" + msg);
 			//if (msg == WM.SysCommand)
 			//{
@@ -131,8 +136,9 @@ namespace roser
 			switch (msg)
 			{
 				// Any titlebar click blocks the thread until the mouse button is released
-				// EnterSizeMove has a huge delay, using SysCommand is a better option
+				// EnterSizeMove has a huge delay, using SysCommand to alert app that it is moving is a better option but anyway two rendering threads cause lag
 				// Great API design by Microsoft, as always
+				// TODO: just pause the game when resizing/moving
 				case WM.SysCommand:
 					// Undocumented values (thanks, Microsoft):
 					// 0xF012 - just title bar click
@@ -141,25 +147,36 @@ namespace roser
 					// 0xF006 - bottom corner resize
 					//if (wParam != 0xF012 && wParam != 0xF010 && wParam != 0xF002 && wParam != 0xF000 && wParam != 0xF001 && wParam != 0xF006)
 					//	break;
+					if (wParam == 0xF020)
+					{
+						minimized = true;
+						LogI("Window is minimized");
+					}
+					//else if (wParam == 0xF120)
+					//{
+					//	LogI("Window is restored");
+					//	minimized = false;
+					//}
+					break;
+				case WM.KillFocus:
+					if (fullScreen)
+						SendMessageW(hWnd, WM.SysCommand, 0xF020, 0);
+					canvas?.OnMessage(msg, wParam, lParam);
 					break;
 				case WM.Activate:
+					// if deactivated
+					if ((wParam & 0xFFFF) == 0)
+					{
+						minimized = true;
+						break;
+					}
+					minimized = false;
+					// Doesn't work in some cases 😭
 					canvas.SetFullScreen(fullScreen);
-					break;
-				case WM.ExitSizeMove:
-
-					break;
-				case WM.GetMinMaxInfo:
-				case WM.NcCreate:
-				case WM.NcCalcSize:
-				case WM.ShowWindow:
-				case WM.WindowPosChanging:
-				case WM.WindowPosChanged:
-				case WM.GetIcon:
-				case WM.ImeSetContext:
-				case WM.ImeNotify:
-				case WM.SetFocus:
-					break;
-				case WM.Create:
+					// The game refuses to draw frames without resizing swapchain and resources in full-screen mode
+					// ¯\_(ツ)_/¯
+					if (canvas.ResizeSwapChain())
+						canvas.ResizeWindowSizeDependentResources();
 					break;
 				// Handle setup with multiple monitors
 				case WM.DpiChanged:
@@ -180,7 +197,8 @@ namespace roser
 					break;
 				// Ignore resize when minimizing window and maximizing previously minimized window
 				case WM.Size:
-					if (wParam == 1) // SIZE_MINIMIZED
+					// SIZE_MINIMIZED
+					if (wParam == 1)
 						break;
 					int newWidth = (int)lParam & 0xffff;
 					int newHeight = (int)(lParam >> 16) & 0xffff;
@@ -189,7 +207,7 @@ namespace roser
 						break;
 					if (canvas.ResizeSwapChain())
 						canvas.ResizeWindowSizeDependentResources();
-					// Needed to free resources and keep the game updated
+					// Needed to free resources
 					Tick();
 					break;
 				case WM.EraseBkgnd:
@@ -204,7 +222,16 @@ namespace roser
 				default:
 					if (msg == WM.KeyUp && wParam == 0x7A)
 					{
-						canvas.SetFullScreen(fullScreen = !fullScreen);
+						fullScreen = !fullScreen;
+						canvas.SetFullScreen(fullScreen);
+						// For some reason window won't have caption back when switching to windowed mode ???
+						if (!fullScreen)
+						{
+							ulong dwStyle = GetWindowLongPtrW(hWnd, -16);
+							SetWindowLongPtrW(hWnd, -16, (nint)(dwStyle | (ulong)defaultWindowStyle));
+							const uint applyStyleFlags = 0x0002 | 0x0004 | 0x0200 | 0x0020 | 0x0001;
+							SetWindowPos(handle, 0, 0, 0, 0, 0, applyStyleFlags);
+						}
 						return 0;
 					}
 					canvas?.OnMessage(msg, wParam, lParam);

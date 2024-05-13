@@ -6,8 +6,8 @@ namespace roser.gameobjects
 	{
 		private const float G = 9.80665f * 10 * ArenaUnit;
 		// X-axis resistance force
-		private const float Rx = 1 * ArenaUnit;
-		public const float Radius = 5 * ArenaUnit;
+		private const float Rx = 1f * ArenaUnit;
+		public const float Radius = 1 * ArenaUnit;
 
 		public double X { get; set; } = Arena.SimulationWidth / 2;
 		public double Y { get; set; } = Arena.SimulationHeight / 2;

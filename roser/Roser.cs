@@ -15,6 +15,9 @@ internal partial class Roser
 
 	private static void Main(string[] args)
 	{
+#if DEBUG
+		ConsoleListener.Start();
+#endif
 		SetProcessDpiAwareness(ProcessDpiAwareness.ProcessPerMonitorDpiAware);
 		using WindowManager wndManager = new();
 		wndManager.SetScene<MenuScene>();

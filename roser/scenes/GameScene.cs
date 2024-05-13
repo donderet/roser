@@ -62,7 +62,9 @@ namespace roser.scenes
 		{
 			frame++;
 			renderTarget.Clear();
+#if DEBUG
 			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}\nBall X: {4:n2}\nBall Y: {5:n2}\nBall accumulator: {6:n2}\nLast dt: {7:n2}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame, arena.BallX, arena.BallY, arena.ball.accumulator, lastDt), textFormat, new(0, 0, Width, Height), textBrush);
+#endif
 			renderTarget.DrawRectangle(boundsRect, boundsBrush);
 			ballEllipse.Point = new(boundsRect.Left + arena.GetBallX(), boundsRect.Top + arena.GetBallY());
 
