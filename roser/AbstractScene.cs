@@ -68,10 +68,10 @@ namespace roser
 						return;
 					}
 				case WM.KeyDown:
-					OnKeyDown(wParam);
+					OnKeyDown((VK)wParam);
 					return;
 				case WM.KeyUp:
-					OnKeyUp(wParam);
+					OnKeyUp((VK)wParam);
 					return;
 			}
 		}
@@ -120,7 +120,7 @@ namespace roser
 		 * Called when button is pressed on the keyboard
 		 * <param name="vk">virtual key code</param>
 		 */
-		public virtual void OnKeyDown(nint vk)
+		public virtual void OnKeyDown(VK vk)
 		{
 
 		}
@@ -129,7 +129,7 @@ namespace roser
 		 * Called when button is released on the keyboard
 		 * <param name="vk">virtual key code</param>
 		 */
-		public virtual void OnKeyUp(nint vk)
+		public virtual void OnKeyUp(VK vk)
 		{
 
 		}

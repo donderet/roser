@@ -4,7 +4,7 @@ namespace roser
 {
 	internal class CollisionHelper
 	{
-		public static bool TestCollision(float x, float y, D2D1RectF bounds)
+		public static bool TestPointRectColliding(float x, float y, D2D1RectF bounds)
 		{
 			return x >= bounds.Left &&
 				x <= bounds.Right &&
@@ -13,7 +13,7 @@ namespace roser
 
 		}
 
-		public static bool TestCollision(float padding, float x, float y, D2D1RectF bounds)
+		public static bool TestPointRectColliding(float padding, float x, float y, D2D1RectF bounds)
 		{
 			return x >= (bounds.Left - padding) &&
 				x <= (bounds.Right + padding) &&

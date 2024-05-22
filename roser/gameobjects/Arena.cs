@@ -4,18 +4,19 @@ namespace roser.gameobjects
 {
 	internal class Arena : IPhysicsObject
 	{
+		public const float G = 9.80665f * 20 * ArenaUnit;
 		public const float ArenaAspect = 9f / 16f;
 
 		// Keep simulation bounds separate from the actual bounds on screen in order to have more precision and carefree resizing
 		public const float ArenaSize = 1000;
-		public const float ArenaUnit = Arena.ArenaSize / 100;
+		public const float ArenaUnit = ArenaSize / 100;
 		public const float SimulationWidth = ArenaSize * ArenaAspect;
 		public const float SimulationHeight = ArenaSize;
 
 		public D2D1RectF BoundsRect { get; set; } = new(0, 0, SimulationWidth,	SimulationHeight);
 
 		public readonly Ball ball;
-		private readonly Paddle paddle;
+		public readonly Paddle paddle;
 
 		public double BallX => ball.X;
 		public double BallY => ball.Y;
@@ -28,6 +29,7 @@ namespace roser.gameobjects
 
 		public void OnTick(double dt)
 		{
+			paddle.OnTick(dt);
 			ball.OnTick(dt);
 		}
 
@@ -64,7 +66,7 @@ namespace roser.gameobjects
 
 		public float GetPaddleY()
 		{
-			return (float)(paddle.Y * _realHeightCoef);
+			return (float)(Paddle.Y * _realHeightCoef);
 		}
 	}
 }

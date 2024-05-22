@@ -12,7 +12,7 @@ namespace roser.scenes
 
 		public override void OnLMBUp(float x, float y)
 		{
-			if (CollisionHelper.TestCollision(Percent(10), x, y, startGameBounds))
+			if (CollisionHelper.TestPointRectColliding(Percent(10), x, y, startGameBounds))
 			{
 				LogI("The text is clicked");
 				WndManager.SetScene<GameScene>();

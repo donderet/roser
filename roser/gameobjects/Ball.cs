@@ -4,19 +4,18 @@ namespace roser.gameobjects
 {
 	internal class Ball(Arena arena) : IPhysicsObject
 	{
-		private const float G = 9.80665f * 10 * ArenaUnit;
 		// X-axis resistance force
 		private const float Rx = 1f * ArenaUnit;
-		public const float Radius = 1 * ArenaUnit;
+		public const float Radius = 3 * ArenaUnit;
 
-		public double X { get; set; } = Arena.SimulationWidth / 2;
-		public double Y { get; set; } = Arena.SimulationHeight / 2;
+		public double X { get; set; } = SimulationWidth / 2;
+		public double Y { get; set; } = SimulationHeight / 2;
 
-		private double vx = 10 * ArenaUnit;
-		private double vy;
+		public double vx = 5 * ArenaUnit;
+		public double vy;
 
-		private double ax = 0 * ArenaUnit;
-		private double ay = 0 * ArenaUnit;
+		public double ax = 0 * ArenaUnit;
+		public double ay = 0 * ArenaUnit;
 
 		public double accumulator = 0d;
 
@@ -26,48 +25,56 @@ namespace roser.gameobjects
 			while (accumulator >= IPhysicsObject.targetTickTimeMillis)
 			{
 				accumulator -= IPhysicsObject.targetTickTimeMillis;
-				// a = (v_1 - v_0) / Δt
-				// v_1 = Δt * a + v_0
-				vx += IPhysicsObject.targetTickTimeMillis * ax / 1000d;
-				vy += IPhysicsObject.targetTickTimeMillis * (ay + G) / 1000d;
+				// a = (v_1 - v_0) / dt
+				// v_1 = dt * a + v_0
+				vx += IPhysicsObject.targetTickTimeMillis * ax * 0.6 / 1000d;
+				vy += IPhysicsObject.targetTickTimeMillis * (ay + G) * 0.6 / 1000d;
 				// l = vt
 				X += IPhysicsObject.targetTickTimeMillis * vx / 1000d;
 				Y += IPhysicsObject.targetTickTimeMillis * vy / 1000d;
 				// Check if in bounds
-				if (Y + Radius > arena.BoundsRect.Bottom)
+				if (Y + Radius >= arena.BoundsRect.Bottom)
 				{
-					OnBallLost();
-					Y = arena.BoundsRect.Bottom - Radius;
-					vy = -vy;
-					//ay -= 4 * ArenaUnit;
-					//return;
-					OnBoundsCollision();
+					BounceFromBottom();
 				}
-				else if (Y - Radius < 0)
+				else if (Y - Radius <= 0)
 				{
-					Y = Radius;
-					vy = -vy;
-					vy += 100 * ArenaUnit;
-					OnBoundsCollision();
+					BounceFromTop();
 				}
-				if (X - Radius < 0)
+				if (X - Radius <= 0)
 				{
-					X = Radius;
-					vx = -vx;
-					OnBoundsCollision();
+					BounceFromLeft();
 				}
-				else if (X + Radius > arena.BoundsRect.Right)
+				else if (X + Radius >= arena.BoundsRect.Right)
 				{
-					X = arena.BoundsRect.Right - Radius;
-					vx = -vx;
-					OnBoundsCollision();
+					BounceFromRight();
 				}
+
 			}
 		}
 
-		private void OnBoundsCollision()
+		public void BounceFromBottom()
 		{
+			Y = arena.BoundsRect.Bottom - Radius;
+			vy = -vy;
+		}
 
+		public void BounceFromTop()
+		{
+			Y = Radius;
+			vy = 0;
+		}
+
+		public void BounceFromRight()
+		{
+			X = arena.BoundsRect.Right - Radius;
+			vx = -vx;
+		}
+
+		public void BounceFromLeft()
+		{
+			X = Radius;
+			vx = -vx;
 		}
 
 		private void OnBallLost()

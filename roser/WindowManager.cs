@@ -125,8 +125,8 @@ namespace roser
 
 		private nint WndProc(nint hWnd, WM msg, nint wParam, nint lParam)
 		{
-			if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove && msg != WM.NcHitTest && msg != WM.NcMouseMove)
-				LogI("" + msg);
+			//if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove && msg != WM.NcHitTest && msg != WM.NcMouseMove)
+			//	LogI("" + msg);
 			//if (msg == WM.SysCommand)
 			//{
 			//	LogI("Recieved syscom");
