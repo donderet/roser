@@ -1,11 +1,14 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
 using roser.native;
+using roser.particles;
 
 namespace roser.scenes
 {
 	internal abstract class TextScene(string text, uint uintColor) : AbstractScene
 	{
+		protected BackgroundParticlesManager particlesManager = new();
+
 		protected D2D1RectF textBounds;
 		protected DWriteTextLayout? textLayout;
 		protected D2D1SolidColorBrush? brush;
@@ -34,6 +37,9 @@ namespace roser.scenes
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
 			DisposeView();
+			particlesManager.Height = Height;
+			particlesManager.Width = Width;
+			particlesManager.CreateResources(renderTarget);
 			D2D1ColorF color = new(uintColor);
 			DWriteTextFormat textFormat = dwriteFactory.CreateTextFormat("Aharoni", dwriteFactory.GetSystemFontCollection(), DWriteFontWeight.Light, DWriteFontStyle.Normal, DWriteFontStretch.Normal, 96, WindowManager.Language.GetString(i18n.StringId.LanguageId));
 			textFormat.TextAlignment = DWriteTextAlignment.Center;
@@ -56,13 +62,16 @@ namespace roser.scenes
 		public override void Render(D2D1RenderTarget renderTarget)
 		{
 			renderTarget.Clear();
+
+			particlesManager.Render(renderTarget);
+
 			D2D1Point2F textPoint = new(textBounds.Left, textBounds.Top);
 			renderTarget.DrawTextLayout(textPoint, textLayout, brush);
 		}
 
 		public override void OnTick(double dt)
 		{
-
+			particlesManager.OnTick(dt);
 		}
 	}
 }

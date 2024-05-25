@@ -121,10 +121,5 @@ namespace roser.gameobjects
 			X = Radius;
 			vx = -vx;
 		}
-
-		private void OnBallLost()
-		{
-
-		}
 	}
 }
