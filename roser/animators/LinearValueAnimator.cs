@@ -2,6 +2,8 @@
 {
 	internal class LinearValueAnimator(double from, double to, int time) : IValueAnimator
 	{
+		protected double _time = time;
+
 		protected double _to = to;
 
 		protected double v = (to - from) / time;
@@ -15,9 +17,10 @@
 			v = (to - Value) / time;
 			_to = to;
 			TimeLeft = time;
+			_time = time;
 		}
 
-		public bool IsFinished => TimeLeft <= 0;
+		public bool IsFinished => _time != -1 && TimeLeft <= 0;
 
 		public virtual void OnTick(double dt)
 		{

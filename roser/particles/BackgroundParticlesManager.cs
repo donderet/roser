@@ -1,13 +1,16 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
 using roser.animators;
+using Windows.UI.Composition;
 
 namespace roser.particles
 {
 	internal class BackgroundParticlesManager
 	{
-		readonly Random r = new();
+		public bool AnimateSize { get; set; }
+		public bool AnimateMovement { get; set; }
+		public bool AnimateColor { get; set; }
 
-		ValueAnimator _valueAnimator;
+		readonly Random r = new();
 
 		const int generateChance = (int)(10000 * (IPhysicsObject.targetTickrate / 128f));
 		const int maxParticlesCount = 30;
@@ -41,13 +44,16 @@ namespace roser.particles
 					float x = r.NextSingle() * Width;
 					float y = r.NextSingle() * Height;
 
+					int time = AnimateSize ? 100 : -1;
 					double finalSize = r.Next(5, 20);
-					int time = r.Next(100, 4000);
-					IValueAnimator sizeAnimator = new ValueAnimator(0, finalSize, time);
-					IValueAnimator xAnimator = new ValueAnimator(x, x, 100);
-					IValueAnimator yAnimator = new ValueAnimator(y, y, 100);
+					IValueAnimator sizeAnimator = new ValueAnimator(finalSize, finalSize, time);
+					time = AnimateMovement ? 0 : -1;
+					IValueAnimator xAnimator = new ValueAnimator(x, x, time);
+					IValueAnimator yAnimator = new ValueAnimator(y, y, time);
+					time = AnimateColor ? 0 : -1;
+					IValueAnimator colorAnimator = new LinearValueAnimator((uint)r.Next(), (uint)r.Next(), time);
 
-					CircleParticle circleParticle = new((uint)r.Next(), sizeAnimator, xAnimator, yAnimator);
+					CircleParticle circleParticle = new(sizeAnimator, xAnimator, yAnimator, colorAnimator);
 					particles.Add(circleParticle);
 				}
 			}

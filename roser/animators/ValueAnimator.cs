@@ -2,15 +2,18 @@
 {
 	internal class ValueAnimator(double from, double to, int time) : IValueAnimator
 	{
+		protected double _time = time;
+
 		protected double _to = to;
 
-		public void To(double __to, int __time)
+		public void To(double to, int time)
 		{
-			a = 2 * (__to - Value) / (__time * __time);
+			a = 2 * (to - Value) / (time * time);
 			v = 0;
 			accumulator = 0;
-			_to = __to;
-			TimeLeft = __time;
+			_to = to;
+			TimeLeft = time;
+			_time = time;
 		}
 
 		public double TimeLeft { get; set; } = time;
@@ -22,7 +25,7 @@
 
 		private double accumulator = 0d;
 
-		public bool IsFinished => TimeLeft <= 0;
+		public bool IsFinished => _time != -1 && TimeLeft <= 0;
 
 		public virtual void OnTick(double dt)
 		{

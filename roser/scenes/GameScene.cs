@@ -1,5 +1,6 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
+using roser.animators;
 using roser.gameobjects;
 using roser.native;
 
@@ -7,6 +8,9 @@ namespace roser.scenes
 {
 	internal class GameScene : AbstractScene
 	{
+		private ValueAnimator opacityAnimator = new(1, 0, 100);
+		private D2D1SolidColorBrush opacityBrush;
+
 		private D2D1RectF boundsRect;
 		private D2D1Brush? boundsBrush;
 
@@ -20,7 +24,7 @@ namespace roser.scenes
 		private D2D1Ellipse ballEllipse;
 		private readonly Arena arena = new();
 
-		private D2D1Brush? textBrush;
+		private D2D1SolidColorBrush? textBrush;
 		DWriteTextFormat textFormat;
 
 		protected override void DisposeView()
@@ -28,6 +32,7 @@ namespace roser.scenes
 			boundsBrush?.Dispose();
 			textBrush?.Dispose();
 			textFormat?.Dispose();
+			opacityBrush?.Dispose();
 			foreach (BrushWrapper brushWrapper in brushPool)
 			{
 				brushWrapper.Brush.Dispose();
@@ -35,10 +40,20 @@ namespace roser.scenes
 			brushPool.Clear();
 		}
 
+		private Arena.ArenaListener OnFadeEnd;
+
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
-			arena.OnBottomCollision = WndManager.SetScene<DefeatScene>;
-			arena.OnNoBricks = WndManager.SetScene<VictoryScene>;
+			arena.OnBottomCollision = () =>
+			{
+				opacityAnimator.To(1, 100);
+				OnFadeEnd = WndManager.SetScene<DefeatScene>;
+			};
+			arena.OnNoBricks = () =>
+			{
+				opacityAnimator.To(1, 100);
+				OnFadeEnd = WndManager.SetScene<VictoryScene>;
+			};
 			DisposeView();
 			boundsBrush = renderTarget.CreateSolidColorBrush(new(0xff_ff_ff));
 
@@ -47,6 +62,7 @@ namespace roser.scenes
 			textBrush = renderTarget.CreateSolidColorBrush(color);
 			paddleRoundedRect.RadiusX = 3;
 			paddleRoundedRect.RadiusY = 3;
+			opacityBrush = renderTarget.CreateSolidColorBrush(new(0x0u));
 		}
 
 		public override void CalculateLayout(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
@@ -118,7 +134,7 @@ namespace roser.scenes
 			paddleRotation = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 #if DEBUG
-			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}\nLast dt: {4:n2}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame, lastDt), textFormat, new(0, 0, Width, Height), textBrush);
+			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame), textFormat, new(0, 0, Width, Height), textBrush);
 			var ghostRot = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 			renderTarget.DrawRoundedRectangle(paddleRoundedRect, textBrush);
@@ -166,13 +182,23 @@ namespace roser.scenes
 					renderTarget.FillRoundedRectangle(brickRoundedRect, brush);
 				}
 			}
+			if (opacityAnimator.Value != 0)
+			{
+				opacityBrush.Opacity = (float)opacityAnimator.Value;
+				renderTarget.FillRectangle(new(0, 0, Width, Height), opacityBrush);
+			}
 		}
-
-		private double lastDt = 0;
 
 		public override void OnTick(double dt)
 		{
-			lastDt = dt;
+			opacityAnimator.OnTick(dt);
+			if (!opacityAnimator.IsFinished)
+				return;
+			else if (opacityAnimator.Value == 1)
+			{
+				OnFadeEnd();
+				return;
+			}
 			arena.OnTick(dt);
 		}
 	}

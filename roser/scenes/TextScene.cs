@@ -1,5 +1,6 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
+using roser.animators;
 using roser.native;
 using roser.particles;
 
@@ -8,10 +9,12 @@ namespace roser.scenes
 	internal abstract class TextScene(string text, uint uintColor) : AbstractScene
 	{
 		protected BackgroundParticlesManager particlesManager = new();
+		protected ValueAnimator opacityAnimator = new(1, 0, 200);
 
 		protected D2D1RectF textBounds;
 		protected DWriteTextLayout? textLayout;
 		protected D2D1SolidColorBrush? brush;
+		protected D2D1SolidColorBrush? fadeBrush;
 
 		protected override void DisposeView()
 		{
@@ -19,17 +22,25 @@ namespace roser.scenes
 			textLayout = null;
 			brush?.Dispose();
 			brush = null;
+			fadeBrush?.Dispose();
+			fadeBrush = null;
 		}
 
 		public override void OnKeyDown(VK vk)
 		{
 			if (vk == VK.Space || vk == VK.Return)
-				Continue();
+				Fade();
 		}
 
 		public override void OnLMBDown(float x, float y)
 		{
-			Continue();
+			Fade();
+		}
+
+		protected void Fade()
+		{
+			if (opacityAnimator.Value == 0)
+				opacityAnimator.To(1, 100);
 		}
 
 		protected abstract void Continue();
@@ -45,6 +56,7 @@ namespace roser.scenes
 			textFormat.TextAlignment = DWriteTextAlignment.Center;
 			textLayout = dwriteFactory.CreateTextLayout(text, textFormat, Width, Height);
 			brush = renderTarget.CreateSolidColorBrush(color);
+			fadeBrush = renderTarget.CreateSolidColorBrush(new(0x0u));
 		}
 
 		public override void CalculateLayout(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
@@ -67,11 +79,22 @@ namespace roser.scenes
 
 			D2D1Point2F textPoint = new(textBounds.Left, textBounds.Top);
 			renderTarget.DrawTextLayout(textPoint, textLayout, brush);
+			if (opacityAnimator.Value != 0)
+			{
+				fadeBrush.Opacity = (float)opacityAnimator.Value;
+				renderTarget.FillRectangle(new(0, 0, Width, Height), fadeBrush);
+			}
 		}
 
 		public override void OnTick(double dt)
 		{
+			opacityAnimator.OnTick(dt);
 			particlesManager.OnTick(dt);
+			if (opacityAnimator.IsFinished && opacityAnimator.Value == 1)
+			{
+				Continue();
+				return;
+			}	
 		}
 	}
 }

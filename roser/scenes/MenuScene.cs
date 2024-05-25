@@ -5,10 +5,12 @@ namespace roser.scenes
 {
 	internal class MenuScene : TextScene
 	{
-		protected ValueAnimator transparencyAnimator = new(1, 1, 0);
+		protected ValueAnimator textTransparencyAnimator = new(0, 0, 100);
 
 		public MenuScene() : base(WindowManager.Language.GetString(i18n.StringId.StartGame), 0xeeeeee)
 		{
+			particlesManager.AnimateMovement = true;
+			particlesManager.AnimateSize = true;
 		}
 
 		protected override void Continue()
@@ -18,19 +20,19 @@ namespace roser.scenes
 
 		public override void Render(D2D1RenderTarget renderTarget)
 		{
-			brush.Opacity = (float)transparencyAnimator.Value;
+			brush.Opacity = (float)textTransparencyAnimator.Value;
 			base.Render(renderTarget);
 		}
 
 		public override void OnTick(double dt)
 		{
 			base.OnTick(dt);
-			if (transparencyAnimator.IsFinished)
+			if (textTransparencyAnimator.IsFinished)
 			{
-				float target = transparencyAnimator.Value == 0 ? 1.0f : 0.0f;
-				transparencyAnimator.To(target, 500);
+				float target = textTransparencyAnimator.Value == 0 ? 1.0f : 0.0f;
+				textTransparencyAnimator.To(target, 500);
 			}
-			transparencyAnimator.OnTick(dt);
+			textTransparencyAnimator.OnTick(dt);
 		}
 	}
 }

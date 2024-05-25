@@ -9,6 +9,9 @@ namespace roser.scenes
 
 		public VictoryScene() : base(WindowManager.Language.GetString(i18n.StringId.Victory), 0x00aa00)
 		{
+			particlesManager.AnimateMovement = true;
+			particlesManager.AnimateSize = true;
+			particlesManager.AnimateColor = true;
 		}
 		protected override void Continue()
 		{

@@ -9,6 +9,7 @@ namespace roser.scenes
 			
 		public DefeatScene() : base(WindowManager.Language.GetString(i18n.StringId.Defeat), 0xaa0000)
 		{
+			particlesManager.AnimateSize = true;
 		}
 
 		protected override void Continue()
