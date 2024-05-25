@@ -7,7 +7,7 @@ namespace roser.scenes
 	{
 		protected ValueAnimator transparencyAnimator = new(1, 1, 0);
 
-		public MenuScene() : base(WindowManager.Language.GetString(i18n.StringId.StartGame), 0xaa0000)
+		public MenuScene() : base(WindowManager.Language.GetString(i18n.StringId.StartGame), 0xeeeeee)
 		{
 		}
 
