@@ -18,14 +18,14 @@ namespace roser.gameobjects
 
 		public float Angle { get; set; }
 
-		public double vx = 0 * ArenaUnit;
+		private double vx = 0 * ArenaUnit;
 
 		private double ax = 0 * ArenaUnit;
 
 		private double ac = 0 * ArenaUnit;
 		private double vc = 0 * ArenaUnit;
 
-		public double accumulator = 0d;
+		private double accumulator = 0d;
 
 		public void OnTick(double dt)
 		{
@@ -91,7 +91,6 @@ namespace roser.gameobjects
 			var dx = point.X - Math.Max(X, Math.Min(point.X, X + Width));
 			var dy = point.Y - Math.Max(Y, Math.Min(point.Y, Y + Height));
 			if ((dx * dx + dy * dy) < (Ball.Radius * Ball.Radius)) {
-				LogI($"dx, dy: {dx}, {dy}");
 				point.Y = (float)(Y - Height);
 				arena.ball.Y = PaddleRotation.TranformPoint(point).Y;
 				const float vBoost = 15 * ArenaUnit;

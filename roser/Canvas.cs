@@ -92,7 +92,7 @@ namespace roser
 					out deviceContext
 				);
 			}
-
+			
 			PrintAdapterInfo();
 		}
 
@@ -183,7 +183,7 @@ namespace roser
 			}
 
 			dxgiFactory.MakeWindowAssociation(Hwnd, DxgiWindowAssociationOptions.NoAltEnter);
-			if (Roser.SaveFile.IsFullscreen)
+			if (SaveFile.IsFullscreen)
 			{
 				swapChain.SetFullscreenState(true);
 			}
@@ -243,7 +243,6 @@ namespace roser
 				D2D1RenderTargetUsages.None,
 				D2D1FeatureLevel.Default
 			);
-
 			renderTarget = d2dFactory.CreateDxgiSurfaceRenderTarget(surface, properties);
 			D3D11RasterizerDesc rasterizerStateDesc = new(D3D11FillMode.Solid, D3D11CullMode.Back, false, 0, 0.0f, 0.0f, true, false, true, false);
 
@@ -253,6 +252,7 @@ namespace roser
 			{
 				InitScene(CurrentScene);
 			}
+			
 		}
 
 		public void InitScene(AbstractScene scene)

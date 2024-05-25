@@ -1,7 +1,11 @@
-﻿namespace roser.generators
+﻿using roser.gameobjects;
+
+namespace roser.generators
 {
 	internal interface ILevelGenerator
 	{
-		bool[,] Generate();
+		Brick?[,] Generate();
+
+		float GetBrickSize();
 	}
 }

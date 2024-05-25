@@ -1,10 +1,15 @@
-﻿using JeremyAnsel.DirectX.D2D1;
-
-namespace roser.gameobjects
+﻿namespace roser.gameobjects
 {
-	internal struct Brick
+	internal class Brick(uint color, float x, float y, float width, float height)
 	{
-		public D2D1ColorF color;
-		public D2D1RectF rect;
+		public uint Color { get; set; } = color;
+
+		public float X { get; set; } = x;
+
+		public float Y { get; set; } = y;
+
+		public float Width { get; set; } = width;
+
+		public float Height { get; set; } = height;
 	}
 }

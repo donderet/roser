@@ -2,7 +2,10 @@
 {
 	internal enum StringId
 	{
+		LanguageId,
 		AppName,
 		StartGame,
+		Victory,
+		Defeat,
 	}
 }

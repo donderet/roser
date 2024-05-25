@@ -9,6 +9,8 @@ namespace roser
 {
 	class WindowManager : IDisposable
 	{
+		public static ILanguage Language { get; private set; }
+
 		public static double FrameTime { get; private set; }
 		public static double TickTime { get; private set; }
 
@@ -26,6 +28,8 @@ namespace roser
 
 		public WindowManager()
 		{
+			Language = new UkrainianLanguage();
+
 			const string className = "Window";
 
 			wndProcDelegate = WndProc;
@@ -113,9 +117,17 @@ namespace roser
 		{
 			T scene = new()
 			{
-				Language = new UkrainianLanguage(),
 				WndManager = this,
 			};
+			canvas.InitScene(scene);
+			canvas.CurrentScene?.Dispose();
+			canvas.CurrentScene = scene;
+		}
+
+		public void SetScene(AbstractScene scene)
+		{
+			scene.WndManager = this;
+
 			canvas.InitScene(scene);
 			canvas.CurrentScene?.Dispose();
 			canvas.CurrentScene = scene;
@@ -180,10 +192,10 @@ namespace roser
 					break;
 				// Handle setup with multiple monitors
 				case WM.DpiChanged:
-					if (Roser.SaveFile.IsFullscreen)
-						break;
 					int oldDpi = DisplayInfo.Dpi;
 					SetDisplayInfo();
+					if (SaveFile.IsFullscreen)
+						break;
 					double scaleFactor = DisplayInfo.Dpi / oldDpi;
 					SetWindowPos(
 						hWnd,

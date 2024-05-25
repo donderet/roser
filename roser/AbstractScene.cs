@@ -1,15 +1,12 @@
 ﻿using roser.native;
 using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
-using roser.i18n;
 
 namespace roser
 {
 	abstract class AbstractScene : IDisposable, IPhysicsObject
 	{
 		public WindowManager WndManager { get; set; }
-
-		public ILanguage Language { get; set; }
 
 		public uint SmallerDimension { get; set; }
 

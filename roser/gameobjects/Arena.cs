@@ -1,4 +1,5 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
+using roser.generators;
 
 namespace roser.gameobjects
 {
@@ -21,10 +22,33 @@ namespace roser.gameobjects
 		public double BallX => ball.X;
 		public double BallY => ball.Y;
 
+		public Brick?[,] Bricks { get; set; }
+
+		public ILevelGenerator LevelGenerator { get; set; }
+
+		public delegate void ArenaListener();
+
+		public ArenaListener OnBottomCollision { get; set; }
+
+		public ArenaListener OnNoBricks { get; set; }
+
+		public int BricksLeft { get; set; }
+
 		public Arena()
 		{
 			ball = new(this);
 			paddle = new(this);
+			if (SaveFile.CurrentLevel == 0)
+			{
+				LevelGenerator = new SmileyGenerator();
+				Bricks = LevelGenerator.Generate();
+			}
+			else
+			{
+				Bricks = new Brick[0, 0];
+				LogE($"Unknown level {SaveFile.CurrentLevel}");
+			}
+			BricksLeft = Bricks.Length;
 		}
 
 		public void OnTick(double dt)

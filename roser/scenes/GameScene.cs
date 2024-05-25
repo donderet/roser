@@ -7,12 +7,8 @@ namespace roser.scenes
 {
 	internal class GameScene : AbstractScene
 	{
-
 		private D2D1RectF boundsRect;
 		private D2D1Brush? boundsBrush;
-
-		public const uint bricksOnRow = 10;
-		private float brickSize;
 
 		private D2D1Matrix3X2F defaultRotation = D2D1Matrix3X2F.Rotation(0);
 		private D2D1Matrix3X2F paddleRotation;
@@ -22,7 +18,7 @@ namespace roser.scenes
 		private float paddleHeight;
 
 		private D2D1Ellipse ballEllipse;
-		private Arena arena = new();
+		private readonly Arena arena = new();
 
 		private D2D1Brush? textBrush;
 		DWriteTextFormat textFormat;
@@ -32,11 +28,17 @@ namespace roser.scenes
 			boundsBrush?.Dispose();
 			textBrush?.Dispose();
 			textFormat?.Dispose();
+			foreach (BrushWrapper brushWrapper in brushPool)
+			{
+				brushWrapper.Brush.Dispose();
+			}
+			brushPool.Clear();
 		}
 
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
-			LogI("CreateResources called");
+			arena.OnBottomCollision = WndManager.SetScene<DefeatScene>;
+			arena.OnNoBricks = WndManager.SetScene<VictoryScene>;
 			DisposeView();
 			boundsBrush = renderTarget.CreateSolidColorBrush(new(0xff_ff_ff));
 
@@ -46,9 +48,9 @@ namespace roser.scenes
 			paddleRoundedRect.RadiusX = 3;
 			paddleRoundedRect.RadiusY = 3;
 		}
+
 		public override void CalculateLayout(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
-			LogI("CalculateLatyout called");
 			boundsRect.Left = (Width - (Height * Arena.ArenaAspect)) / 2;
 			boundsRect.Right = Width - boundsRect.Left;
 			boundsRect.Top = 0;
@@ -71,11 +73,13 @@ namespace roser.scenes
 
 		public override void OnKeyDown(VK vk)
 		{
-			if (vk == VK.KeyA || vk == VK.Left) {
+			if (vk == VK.KeyA || vk == VK.Left)
+			{
 				arena.paddle.MovingLeft = true;
 				return;
 			}
-			if (vk == VK.KeyD || vk == VK.Right) {
+			if (vk == VK.KeyD || vk == VK.Right)
+			{
 				arena.paddle.MovingRight = true;
 				return;
 			}
@@ -97,6 +101,8 @@ namespace roser.scenes
 
 		private long frame = 0;
 
+		private readonly LinkedList<BrushWrapper> brushPool = new();
+
 		public override void Render(D2D1RenderTarget renderTarget)
 		{
 			frame++;
@@ -112,7 +118,7 @@ namespace roser.scenes
 			paddleRotation = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 #if DEBUG
-			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}\nBall X: {4:n2}\nBall Y: {5:n2}\nBall accumulator: {6:n2}\nPaddle accumulator: {7:n2}\nPaddle vx: {8:n15}\nPaddle angle: {9:n2}\nLast dt: {10:n2}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame, arena.BallX, arena.BallY, arena.ball.accumulator, arena.paddle.accumulator, arena.paddle.vx, arena.paddle.Angle, lastDt), textFormat, new(0, 0, Width, Height), textBrush);
+			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}\nLast dt: {4:n2}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame, lastDt), textFormat, new(0, 0, Width, Height), textBrush);
 			var ghostRot = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 			renderTarget.DrawRoundedRectangle(paddleRoundedRect, textBrush);
@@ -124,6 +130,42 @@ namespace roser.scenes
 			renderTarget.DrawRoundedRectangle(paddleRoundedRect, boundsBrush);
 			renderTarget.Transform = defaultRotation;
 			renderTarget.DrawEllipse(ballEllipse, boundsBrush);
+
+			D2D1RectF brickRect = new();
+			D2D1RoundedRect brickRoundedRect = new()
+			{
+				RadiusX = 3,
+				RadiusY = 3
+			};
+			int len1 = arena.Bricks.GetLength(0);
+			int len2 = arena.Bricks.GetLength(1);
+			for (int i = 0; i < len1; i++)
+			{
+				for (int j = 0; j < len2; j++)
+				{
+					Brick? brick = arena.Bricks[i, j];
+
+					if (brick == null)
+						continue;
+					BrushWrapper? brushWrapper = brushPool.FirstOrDefault(b => b.Color == brick.Color);
+					D2D1Brush brush;
+					if (brushWrapper == null)
+					{
+						LogI("Created brush while drawing UwU");
+						brush = renderTarget.CreateSolidColorBrush(new(brick.Color));
+						brushPool.AddLast(new BrushWrapper(brush, brick.Color));
+					}
+					else
+						brush = brushWrapper.Brush;
+					brickRect.Left = (float)(boundsRect.Left + (brick.X * arena.RealWidthCoef));
+					brickRect.Right = (float)(boundsRect.Left + (brick.X * arena.RealWidthCoef) + (brick.Width * arena.RealWidthCoef));
+					brickRect.Top = (float)(boundsRect.Top + (brick.Y * arena.RealHeightCoef));
+					brickRect.Bottom = (float)(boundsRect.Top + (brick.Y * arena.RealHeightCoef) + (brick.Height * arena.RealHeightCoef));
+					brickRoundedRect.Rect = brickRect;
+					// bottleneck
+					renderTarget.FillRoundedRectangle(brickRoundedRect, brush);
+				}
+			}
 		}
 
 		private double lastDt = 0;

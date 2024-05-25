@@ -5,10 +5,6 @@ using System.Runtime.InteropServices;
 
 internal partial class Roser
 {
-	private static readonly SaveFile _saveFile = new();
-
-	public static SaveFile SaveFile => _saveFile;
-
 	[LibraryImport("Shcore.dll")]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	public static partial bool SetProcessDpiAwareness(ProcessDpiAwareness awareness);
@@ -19,8 +15,9 @@ internal partial class Roser
 		ConsoleListener.Start();
 #endif
 		SetProcessDpiAwareness(ProcessDpiAwareness.ProcessPerMonitorDpiAware);
+		SaveFile.Init();
 		using WindowManager wndManager = new();
-		wndManager.SetScene<MenuScene>();
+		wndManager.SetScene<VictoryScene>();
 		wndManager.ShowWindow();
 	}
 }
