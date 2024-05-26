@@ -4,7 +4,6 @@ using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
 using JeremyAnsel.DirectX.Dxgi;
 using roser.native;
-using Windows.Media.Audio;
 
 namespace roser
 {

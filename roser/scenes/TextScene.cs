@@ -24,6 +24,7 @@ namespace roser.scenes
 			brush = null;
 			fadeBrush?.Dispose();
 			fadeBrush = null;
+			particlesManager.Dispose();
 		}
 
 		public override void OnKeyDown(VK vk)
@@ -48,8 +49,11 @@ namespace roser.scenes
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
 			DisposeView();
-			particlesManager.Height = Height;
-			particlesManager.Width = Width;
+			particlesManager = new()
+			{
+				Height = Height,
+				Width = Width
+			};
 			particlesManager.CreateResources(renderTarget);
 			D2D1ColorF color = new(uintColor);
 			DWriteTextFormat textFormat = dwriteFactory.CreateTextFormat("Aharoni", dwriteFactory.GetSystemFontCollection(), DWriteFontWeight.Light, DWriteFontStyle.Normal, DWriteFontStretch.Normal, 96, WindowManager.Language.GetString(i18n.StringId.LanguageId));

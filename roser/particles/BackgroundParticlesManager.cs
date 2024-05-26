@@ -4,7 +4,7 @@ using Windows.UI.Composition;
 
 namespace roser.particles
 {
-	internal class BackgroundParticlesManager
+	internal class BackgroundParticlesManager : IDisposable
 	{
 		public bool AnimateSize { get; set; }
 		public bool AnimateMovement { get; set; }
@@ -21,6 +21,7 @@ namespace roser.particles
 		private double accumulator = 0d;
 
 		public List<CircleParticle> particles = new(maxParticlesCount);
+		private bool disposedValue;
 
 		// Clean up if device is lost
 		public void CreateResources(D2D1RenderTarget renderTarget)
@@ -63,6 +64,33 @@ namespace roser.particles
 		{
 			foreach (var particle in particles)
 				particle.Render(renderTarget);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					particles.Clear();
+				}
+
+				foreach (var particle in particles)
+					particle.Dispose();
+
+				disposedValue = true;
+			}
+		}
+
+		~BackgroundParticlesManager()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }
