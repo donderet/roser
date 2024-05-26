@@ -4,6 +4,7 @@ using JeremyAnsel.DirectX.D2D1;
 using JeremyAnsel.DirectX.DWrite;
 using JeremyAnsel.DirectX.Dxgi;
 using roser.native;
+using Windows.Media.Audio;
 
 namespace roser
 {
@@ -342,8 +343,9 @@ namespace roser
 			{
 				CurrentScene = null;
 			}
-
-			// TODO: implement disposing of unmanaged resources
+			CurrentScene?.Dispose();
+			ReleaseWindowSizeDependentResources();
+			ReleaseDeviceResources();
 			disposed = true;
 		}
 
@@ -354,7 +356,7 @@ namespace roser
 
 		public void Dispose()
 		{
-			Dispose(disposing: true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 	}
