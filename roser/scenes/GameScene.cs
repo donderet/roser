@@ -8,7 +8,7 @@ namespace roser.scenes
 {
 	internal class GameScene : AbstractScene
 	{
-		private ValueAnimator opacityAnimator = new(1, 0, 100);
+		private readonly ValueAnimator opacityAnimator = new(1, 0, 100);
 		private D2D1SolidColorBrush opacityBrush;
 
 		private D2D1RectF boundsRect;
@@ -134,7 +134,7 @@ namespace roser.scenes
 			paddleRotation = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 #if DEBUG
-			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nEllapsed ticks: {2}\nFrame: {3}", WindowManager.FrameTime, WindowManager.TickTime, WindowManager.stopwatch.ElapsedTicks, frame), textFormat, new(0, 0, Width, Height), textBrush);
+			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nFrame: {2}", WindowManager.FrameTime, WindowManager.TickTime, frame), textFormat, new(0, 0, Width, Height), textBrush);
 			var ghostRot = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
 
 			renderTarget.DrawRoundedRectangle(paddleRoundedRect, textBrush);

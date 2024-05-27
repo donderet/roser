@@ -123,11 +123,6 @@ namespace roser
 			D3D11Utils.DisposeAndNull(ref backBuffer);
 			D3D11Utils.DisposeAndNull(ref renderTargetView);
 			D2D1Utils.DisposeAndNull(ref renderTarget);
-
-			//if (swapChain != null && swapChain.GetFullscreenState())
-			//{
-			//	swapChain.SetFullscreenState(false);
-			//}
 		}
 
 		private void CreateSwapChain()
@@ -341,10 +336,10 @@ namespace roser
 			if (disposing)
 			{
 				CurrentScene = null;
+				CurrentScene?.Dispose();
+				ReleaseWindowSizeDependentResources();
+				ReleaseDeviceResources();
 			}
-			CurrentScene?.Dispose();
-			ReleaseWindowSizeDependentResources();
-			ReleaseDeviceResources();
 			disposed = true;
 		}
 

@@ -8,8 +8,8 @@ namespace roser.scenes
 {
 	internal abstract class TextScene(string text, uint uintColor) : AbstractScene
 	{
-		protected BackgroundParticlesManager particlesManager = new();
-		protected ValueAnimator opacityAnimator = new(1, 0, 200);
+		protected readonly BackgroundParticlesManager particlesManager = new();
+		protected readonly ValueAnimator opacityAnimator = new(1, 0, 200);
 
 		protected D2D1RectF textBounds;
 		protected DWriteTextLayout? textLayout;
@@ -24,7 +24,7 @@ namespace roser.scenes
 			brush = null;
 			fadeBrush?.Dispose();
 			fadeBrush = null;
-			particlesManager.Dispose();
+			particlesManager.ReleaseParticles();
 		}
 
 		public override void OnKeyDown(VK vk)
@@ -33,7 +33,7 @@ namespace roser.scenes
 				Fade();
 		}
 
-		public override void OnLMBDown(float x, float y)
+		public override void OnLMBUp(float x, float y)
 		{
 			Fade();
 		}
@@ -49,14 +49,11 @@ namespace roser.scenes
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
 			DisposeView();
-			particlesManager = new()
-			{
-				Height = Height,
-				Width = Width
-			};
+			particlesManager.Height = Height;
+			particlesManager.Width = Width;
 			particlesManager.CreateResources(renderTarget);
 			D2D1ColorF color = new(uintColor);
-			DWriteTextFormat textFormat = dwriteFactory.CreateTextFormat("Aharoni", dwriteFactory.GetSystemFontCollection(), DWriteFontWeight.Light, DWriteFontStyle.Normal, DWriteFontStretch.Normal, 96, WindowManager.Language.GetString(i18n.StringId.LanguageId));
+			using DWriteTextFormat textFormat = dwriteFactory.CreateTextFormat("Aharoni", dwriteFactory.GetSystemFontCollection(), DWriteFontWeight.Light, DWriteFontStyle.Normal, DWriteFontStretch.Normal, 96, WindowManager.Language.GetString(i18n.StringId.LanguageId));
 			textFormat.TextAlignment = DWriteTextAlignment.Center;
 			textLayout = dwriteFactory.CreateTextLayout(text, textFormat, Width, Height);
 			brush = renderTarget.CreateSolidColorBrush(color);
@@ -70,7 +67,8 @@ namespace roser.scenes
 				size = 1;
 			textLayout.SetFontSize(size, new(0, (uint)text.Length));
 			var startGameTextMetrics = textLayout.GetMetrics();
-			float marginStart = textLayout.TextAlignment == DWriteTextAlignment.Center ? 0 : (Width - startGameTextMetrics.Width) / 2;
+			// Text is centered by DWriteTextAlignment.Center
+			float marginStart = 0;
 			float marginTop = (Height - startGameTextMetrics.Height) / 2;
 			textBounds = new(marginStart, marginTop, marginStart + startGameTextMetrics.Width, marginTop + startGameTextMetrics.Height);
 		}

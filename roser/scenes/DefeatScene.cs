@@ -14,7 +14,7 @@ namespace roser.scenes
 
 		protected override void Continue()
 		{
-			WndManager.SetScene<GameScene>();
+			WndManager.SetScene<MenuScene>();
 		}
 
 		public override void Render(D2D1RenderTarget renderTarget)

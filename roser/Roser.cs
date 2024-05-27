@@ -19,5 +19,8 @@ internal partial class Roser
 		using WindowManager wndManager = new();
 		wndManager.SetScene<MenuScene>();
 		wndManager.ShowWindow();
+#if DEBUG
+		ConsoleListener.Stop();
+#endif
 	}
 }

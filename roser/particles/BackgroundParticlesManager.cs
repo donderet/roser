@@ -1,6 +1,5 @@
 ﻿using JeremyAnsel.DirectX.D2D1;
 using roser.animators;
-using Windows.UI.Composition;
 
 namespace roser.particles
 {
@@ -66,18 +65,21 @@ namespace roser.particles
 				particle.Render(renderTarget);
 		}
 
+		public void ReleaseParticles()
+		{
+			foreach (var particle in particles)
+				particle.Dispose();
+			particles.Clear();
+		}
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposedValue)
 			{
 				if (disposing)
 				{
-					particles.Clear();
+					ReleaseParticles();
 				}
-
-				foreach (var particle in particles)
-					particle.Dispose();
-
 				disposedValue = true;
 			}
 		}

@@ -9,7 +9,7 @@ namespace roser
 {
 	class WindowManager : IDisposable
 	{
-		public static ILanguage Language { get; private set; }
+		public static ILanguage Language { get; set; }
 
 		public static double FrameTime { get; private set; }
 		public static double TickTime { get; private set; }
@@ -28,8 +28,6 @@ namespace roser
 
 		public WindowManager()
 		{
-			Language = new UkrainianLanguage();
-
 			const string className = "Window";
 
 			wndProcDelegate = WndProc;
@@ -51,8 +49,8 @@ namespace roser
 				className,
 				WindowName,
 				defaultWindowStyle,
-				CW_USEDEFAULT,
-				CW_USEDEFAULT,
+				CwUseDefault,
+				CwUseDefault,
 				1500,
 				1500,
 				nint.Zero,
@@ -94,7 +92,7 @@ namespace roser
 			}
 		}
 
-		public static readonly Stopwatch stopwatch = new();
+		private static readonly Stopwatch stopwatch = new();
 
 		public void Tick()
 		{

@@ -5,7 +5,7 @@ namespace roser.scenes
 {
 	internal class VictoryScene : TextScene
 	{
-		protected ValueAnimator transparencyAnimator = new(1, 1, 5000);
+		protected readonly ValueAnimator transparencyAnimator = new(1, 1, 5000);
 
 		public VictoryScene() : base(WindowManager.Language.GetString(i18n.StringId.Victory), 0x00aa00)
 		{
@@ -13,6 +13,7 @@ namespace roser.scenes
 			particlesManager.AnimateSize = true;
 			particlesManager.AnimateColor = true;
 		}
+
 		protected override void Continue()
 		{
 			WndManager.SetScene<MenuScene>();

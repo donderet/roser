@@ -21,7 +21,7 @@ namespace roser.particles
 				brush.Dispose();
 				brush = null;
 			}
-			brush = renderTarget.CreateSolidColorBrush(new((uint)colorAnimator.Value));
+			brush = renderTarget.CreateSolidColorBrush(new((uint)ColorAnimator.Value));
 		}
 
 		public void Render(D2D1RenderTarget renderTarget)
@@ -33,7 +33,7 @@ namespace roser.particles
 			point.X = (float)XAnimator.Value;
 			point.Y = (float)YAnimator.Value;
 			circle.Point = point;
-			brush.Color = new((uint)colorAnimator.Value);
+			brush!.Color = new((uint)ColorAnimator.Value);
 			renderTarget.FillEllipse(circle, brush);
 		}
 

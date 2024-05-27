@@ -5,7 +5,7 @@ namespace roser.native
 {
 	internal partial class User32
 	{
-		public const int CW_USEDEFAULT = unchecked((int)0x80000000);
+		public const int CwUseDefault = unchecked((int)0x80000000);
 
 		public const int ErrorClassAlreadyExists = 1410;
 
@@ -53,41 +53,11 @@ namespace roser.native
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool InvalidateRect(IntPtr hWnd, IntPtr rect, [MarshalAs(UnmanagedType.Bool)] bool bErase);
-
-		[LibraryImport("usеr32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool SetWindowDisplayAffinity(nint hwnd, uint dwAffinity);	
-
-		[LibraryImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
 		public static partial bool SetWindowLongPtrW(nint hwnd, int nIndex, nint dwNewLong);
-
-		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-		internal struct MonitorInfoExW
-		{
-			public int cbSize;
-			public Rectangle rcMonitor;
-			public Rectangle rcWork;
-			public int dwFlags;
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-			public string szDevice;
-		}
-
-		[DllImport("user32.dll")]
-		public static extern int GetMonitorInfoW(nint hMonitor, out MonitorInfoExW lpmi);
-
-		[LibraryImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.U8)]
-		public static partial ulong MonitorFromWindow(nint hwnd, int dwFlags);
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.U8)]
 		public static partial ulong GetWindowLongPtrW(nint hwnd, int nIndex);
-
-		[LibraryImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool UpdateWindow(IntPtr hWnd);
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -170,19 +140,10 @@ namespace roser.native
 		);
 
 		[LibraryImport("user32.dll")]
-		public static partial IntPtr GetDC(IntPtr ptr);
-
-		[LibraryImport("user32.dll")]
-		public static partial IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDc);
-
-		[LibraryImport("user32.dll")]
 		public static partial IntPtr LoadCursorW(
 			IntPtr hInstance,
 			IDC lpCursorName
 		);
-
-		[LibraryImport("User32", SetLastError = true)]
-		public static partial int GetGuiResources(IntPtr hProcess, int uiFlags);
 
 		[LibraryImport("User32", SetLastError = true)]
 		public static partial int SetWindowPos(nint hwnd, nint hwndInsertAfter, int x, int y, int cx, int cy, uint flags);
