@@ -61,13 +61,20 @@ namespace roser
 			var path = Path.Combine(directory, "roser", "save");
 			if (!File.Exists(path))
 				return;
-			using FileStream fs = File.OpenRead(path);
-			using BinaryReader reader = new(fs);
-			IsFullscreen = reader.ReadBoolean();
-			var lang = reader.ReadUInt32();
-			if (Enum.IsDefined(typeof(LanguageId), lang))
-				LanguageId = (LanguageId) lang;
-			CurrentLevel = reader.ReadUInt32();
+			try
+			{
+				using FileStream fs = File.OpenRead(path);
+				using BinaryReader reader = new(fs);
+				IsFullscreen = reader.ReadBoolean();
+				var lang = reader.ReadUInt32();
+				if (Enum.IsDefined(typeof(LanguageId), lang))
+					LanguageId = (LanguageId)lang;
+				CurrentLevel = reader.ReadUInt32();
+			}
+			catch
+			{
+
+			}
 		}
 
 		public static void Save()
@@ -77,11 +84,18 @@ namespace roser
 			var path = Path.Combine(directory, "roser", "save");
 			if (!Directory.Exists(dirPath))
 				Directory.CreateDirectory(dirPath);
-			using FileStream fs = File.OpenWrite(path);
-			using BinaryWriter writer = new(fs);
-			writer.Write(IsFullscreen);
-			writer.Write((uint)LanguageId);
-			writer.Write(CurrentLevel);
+			try
+			{
+				using FileStream fs = File.OpenWrite(path);
+				using BinaryWriter writer = new(fs);
+				writer.Write(IsFullscreen);
+				writer.Write((uint)LanguageId);
+				writer.Write(CurrentLevel);
+			}
+			catch
+			{
+
+			}
 		}
 	}
 }

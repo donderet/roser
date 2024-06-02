@@ -12,6 +12,8 @@ namespace roser.scenes
 			particlesManager.AnimateMovement = true;
 			particlesManager.AnimateSize = true;
 			particlesManager.AnimateColor = true;
+			SaveFile.CurrentLevel++;
+			SaveFile.Save();
 		}
 
 		protected override void Continue()

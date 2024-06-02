@@ -11,7 +11,7 @@ namespace roser.particles
 
 		readonly Random r = new();
 
-		const int generateChance = (int)(10000 * (IPhysicsObject.targetTickrate / 128f));
+		const int genParticleTime = 500;
 		const int maxParticlesCount = 30;
 
 		public uint Width { get; set; }
@@ -29,9 +29,12 @@ namespace roser.particles
 				particle.CreateResources(renderTarget);
 		}
 
+		double lastParticleTime;
+
 		public void OnTick(double dt)
 		{
 			accumulator += dt;
+			lastParticleTime += dt;
 			while (accumulator >= IPhysicsObject.targetTickTimeMillis)
 			{
 				accumulator -= IPhysicsObject.targetTickTimeMillis;
@@ -39,14 +42,16 @@ namespace roser.particles
 				{
 					particles[i].OnTick(r, Width, Height);
 				}
-				if (Height > 90 && (r.Next() & generateChance) == generateChance && particles.Count < maxParticlesCount)
+				if (Height > 90 && (r.Next() & 0b1111) == 0b1111 && lastParticleTime >= genParticleTime && particles.Count < maxParticlesCount)
 				{
+					lastParticleTime -= genParticleTime;
 					float x = r.NextSingle() * Width;
 					float y = r.NextSingle() * Height;
 
-					int time = AnimateSize ? 100 : -1;
+					int time = AnimateSize ? 200 : -1;
 					double finalSize = r.Next(5, 20);
-					IValueAnimator sizeAnimator = new ValueAnimator(finalSize, finalSize, time);
+					double startSize = AnimateSize ? 0 : finalSize;
+					IValueAnimator sizeAnimator = new ValueAnimator(startSize, finalSize, time);
 					time = AnimateMovement ? 0 : -1;
 					IValueAnimator xAnimator = new ValueAnimator(x, x, time);
 					IValueAnimator yAnimator = new ValueAnimator(y, y, time);

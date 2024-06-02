@@ -53,8 +53,6 @@ namespace roser.scenes
 			{
 				opacityAnimator.To(1, 100);
 				OnFadeEnd = WndManager.SetScene<VictoryScene>;
-				SaveFile.CurrentLevel++;
-				SaveFile.Save();
 			};
 			DisposeView();
 			boundsBrush = renderTarget.CreateSolidColorBrush(new(0xff_ff_ff));

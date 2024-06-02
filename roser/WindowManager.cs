@@ -21,7 +21,7 @@ namespace roser
 
 		private readonly Canvas canvas;
 
-		private bool fullScreen = false;
+		private bool fullScreen = SaveFile.IsFullscreen;
 
 		private bool minimized = false;
 
@@ -226,6 +226,7 @@ namespace roser
 					if (msg == WM.KeyUp && wParam == 0x7A)
 					{
 						fullScreen = !fullScreen;
+						SaveFile.IsFullscreen = fullScreen;
 						canvas.SetFullScreen(fullScreen);
 						SaveFile.Save();
 						// For some reason window won't have caption back when switching to windowed mode ???

@@ -38,18 +38,17 @@ namespace roser.gameobjects
 		{
 			ball = new(this);
 			paddle = new(this);
-			if (SaveFile.CurrentLevel == 0)
+			LevelGenerator = SaveFile.CurrentLevel switch
 			{
-				LevelGenerator = new SmileyGenerator();
-				Bricks = LevelGenerator.Generate();
-				BricksLeft = LevelGenerator.GetTotalBricks();
-			}
-			else
-			{
-				Bricks = new Brick[0, 0];
-				LogE($"Unknown level {SaveFile.CurrentLevel}");
-				BricksLeft = 0;
-			}
+				0 => new Level0(),
+				1 => new Level1(),
+				2 => new Level2(),
+				3 => new Level3(),
+				4 => new Level4(),
+				_ => new ArcadeGenerator(),
+			};
+			Bricks = LevelGenerator.Generate();
+			BricksLeft = LevelGenerator.GetTotalBricks();
 		}
 
 		public void OnTick(double dt)

@@ -178,10 +178,6 @@ namespace roser
 			}
 
 			dxgiFactory.MakeWindowAssociation(Hwnd, DxgiWindowAssociationOptions.NoAltEnter);
-			if (SaveFile.IsFullscreen)
-			{
-				swapChain.SetFullscreenState(true);
-			}
 
 			backBuffer = swapChain.GetTexture2D(0);
 
@@ -279,6 +275,8 @@ namespace roser
 
 		public void DrawCurrentScene()
 		{
+			if (CurrentScene == null)
+				return; 
 			DrawScene(CurrentScene);
 		}
 

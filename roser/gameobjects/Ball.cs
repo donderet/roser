@@ -24,7 +24,7 @@ namespace roser.gameobjects
 			while (accumulator >= IPhysicsObject.targetTickTimeMillis)
 			{
 				accumulator -= IPhysicsObject.targetTickTimeMillis;
-				// dv = dt * a
+				// dv = dt * rel
 				vx += IPhysicsObject.targetTickTimeMillis * ax * 0.6 / 1000d;
 				vy += IPhysicsObject.targetTickTimeMillis * (ay + G) * 0.6 / 1000d;
 				X += IPhysicsObject.targetTickTimeMillis * vx / 1000d;
@@ -35,9 +35,11 @@ namespace roser.gameobjects
 				// This won't work with variable brick size
 				float brickSize = arena.LevelGenerator.GetBrickSize();
 				const float d = Radius * 2;
+				// Doesn't really work if brickSize > d, this is bad workaround
+				int rel = (int)(d / brickSize);
+				int addition = rel == 0 ? 1 : 0;
 				// Neighbourhood 
-				int n = (int)(d / brickSize) + 1;
-
+				int n = rel + 1;
 				int bX = (int)((X - Radius) / brickSize);
 				int bY = (int)((Y - Radius) / brickSize);
 				if (bX < 0)
@@ -50,14 +52,14 @@ namespace roser.gameobjects
 
 				if (bY < heightL)
 				{
-					for (int i = 0; i < n; i++)
+					for (int i = 0; i < (n + addition); i++)
 					{
 						int xI = bX + i;
 						if (xI < 0)
 							continue;
 						if (xI >= widthL)
 							break;
-						for (int j = 0; j < n; j++)
+						for (int j = 0; j < (n + addition); j++)
 						{
 							int yI = bY + j;
 							if (yI < 0)
