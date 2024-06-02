@@ -65,12 +65,17 @@ namespace roser.scenes
 			float size = Percent(15);
 			if (size < 1)
 				size = 1;
+			textLayout.MaxWidth = Width;
+			textLayout.MaxHeight = Height;
 			textLayout.SetFontSize(size, new(0, (uint)text.Length));
 			var startGameTextMetrics = textLayout.GetMetrics();
 			// Text is centered by DWriteTextAlignment.Center
 			float marginStart = 0;
 			float marginTop = (Height - startGameTextMetrics.Height) / 2;
 			textBounds = new(marginStart, marginTop, marginStart + startGameTextMetrics.Width, marginTop + startGameTextMetrics.Height);
+			particlesManager.Height = Height;
+			particlesManager.Width = Width;
+			LogI("Calculating layout");
 		}
 
 		public override void Render(D2D1RenderTarget renderTarget)

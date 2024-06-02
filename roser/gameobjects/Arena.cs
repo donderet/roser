@@ -42,13 +42,14 @@ namespace roser.gameobjects
 			{
 				LevelGenerator = new SmileyGenerator();
 				Bricks = LevelGenerator.Generate();
+				BricksLeft = LevelGenerator.GetTotalBricks();
 			}
 			else
 			{
 				Bricks = new Brick[0, 0];
 				LogE($"Unknown level {SaveFile.CurrentLevel}");
+				BricksLeft = 0;
 			}
-			BricksLeft = Bricks.Length;
 		}
 
 		public void OnTick(double dt)

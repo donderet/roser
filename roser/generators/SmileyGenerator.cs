@@ -60,5 +60,10 @@ namespace roser.generators
 			}
 			return bricks;
 		}
+
+		public int GetTotalBricks()
+		{
+			return (radius * 2 + 1) * (radius * 2 + 1);
+		}
 	}
 }

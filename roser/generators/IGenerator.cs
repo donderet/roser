@@ -7,5 +7,7 @@ namespace roser.generators
 		Brick?[,] Generate();
 
 		float GetBrickSize();
+
+		int GetTotalBricks();
 	}
 }

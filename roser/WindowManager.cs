@@ -4,6 +4,7 @@ using static roser.native.DwmApi;
 using roser.native;
 using System.Diagnostics;
 using roser.i18n;
+using JeremyAnsel.DirectX.DWrite;
 
 namespace roser
 {
@@ -117,16 +118,8 @@ namespace roser
 			{
 				WndManager = this,
 			};
-			canvas.InitScene(scene);
-			canvas.CurrentScene?.Dispose();
-			canvas.CurrentScene = scene;
-		}
-
-		public void SetScene(AbstractScene scene)
-		{
-			scene.WndManager = this;
-
-			canvas.InitScene(scene);
+			canvas.CreateSceneResources(scene);
+			canvas.ResizeScene(scene);
 			canvas.CurrentScene?.Dispose();
 			canvas.CurrentScene = scene;
 		}

@@ -245,18 +245,26 @@ namespace roser
 			deviceContext.RasterizerStageSetState(rasterizerState);
 			if (CurrentScene != null)
 			{
-				InitScene(CurrentScene);
+				ResizeScene(CurrentScene);
 			}
 			
 		}
 
-		public void InitScene(AbstractScene scene)
+		public void CreateSceneResources(AbstractScene scene)
 		{
 			GetClientRect(Hwnd, out var bounds);
 			scene.Width = (uint)(bounds.Width / DisplayInfo.DipScale);
 			scene.Height = (uint)(bounds.Height / DisplayInfo.DipScale);
 			scene.SmallerDimension = scene.Width > scene.Height ? scene.Height : scene.Width;
 			scene.CreateResources(renderTarget, dwritefactory);
+		}
+
+		public void ResizeScene(AbstractScene scene)
+		{
+			GetClientRect(Hwnd, out var bounds);
+			scene.Width = (uint)(bounds.Width / DisplayInfo.DipScale);
+			scene.Height = (uint)(bounds.Height / DisplayInfo.DipScale);
+			scene.SmallerDimension = scene.Width > scene.Height ? scene.Height : scene.Width;
 			scene.CalculateLayout(renderTarget, dwritefactory);
 		}
 
