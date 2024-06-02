@@ -61,6 +61,7 @@ namespace roser.scenes
 			{
 				SaveFile.LanguageId = (LanguageId)((((int)SaveFile.LanguageId) + 1) % Languages.Length);
 				shouldRecreate = true;
+				SaveFile.Save();
 				WndManager.SetScene<MenuScene>();
 				return;
 			}
