@@ -29,22 +29,11 @@ namespace roser
 
 		private static void SetDefaultLanguage()
 		{
-			// Thread.CurrentThread.CurrentCulture doesn't work, it is always invariant for some reason
-			nint ptr = Marshal.AllocHGlobal(128);
-			GetLocaleInfoEx(null, 3, ptr, 64);
-			StringBuilder sb = new();
-			char c;
-			for (int i = 0; (c = (char)Marshal.ReadInt16(ptr + i)) != '\x0'; i += 2)
-			{
-				sb.Append(char.ToLower(c));
-			}
-			Marshal.FreeHGlobal(ptr);
-			string isoCode = sb.ToString();
-
+			string isoCode = Thread.CurrentThread.CurrentCulture.Name;
 			for (int i = 0; i < Languages.Length; i++)
 			{
 				var testIso = Languages[i].GetString(StringId.LanguageId);
-				if (testIso.StartsWith(isoCode))
+				if (testIso == isoCode)
 				{
 					LanguageId = (LanguageId)i;
 					break;

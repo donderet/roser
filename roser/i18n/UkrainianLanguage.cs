@@ -3,7 +3,7 @@
 	internal class UkrainianLanguage : ILanguage
 	{
 		public static string[] strings = [
-				"ukr-UA",
+				"uk-UA",
 				"Roser",
 				"Грати",
 				"Рівень пройдений",
