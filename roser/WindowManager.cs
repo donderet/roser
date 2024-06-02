@@ -147,7 +147,7 @@ namespace roser
 			{
 				// Any titlebar click blocks the thread until the mouse button is released
 				// EnterSizeMove has a huge delay, using SysCommand to alert app that it is moving is a better option but anyway two rendering threads cause lag
-				// Great API design by Microsoft, as always
+				// Great API design by Micros*ft, as always
 				// TODO: just pause the game when resizing/moving
 				case WM.SysCommand:
 					// Undocumented values (thanks, Microsoft):

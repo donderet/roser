@@ -208,7 +208,7 @@ namespace roser
 		}
 
 		// We need to draw something on the buffer in order to actually *free* memory from released resources
-		// Great API design by Microsoft, as always
+		// Great API design by Micros*ft, as always
 		public void ResizeWindowSizeDependentResources()
 		{
 			D3D11RenderTargetViewDesc renderTargetViewDesc = new(D3D11RtvDimension.Texture2D);
@@ -335,8 +335,8 @@ namespace roser
 				return;
 			if (disposing)
 			{
-				CurrentScene = null;
 				CurrentScene?.Dispose();
+				CurrentScene = null;
 				ReleaseWindowSizeDependentResources();
 				ReleaseDeviceResources();
 			}
