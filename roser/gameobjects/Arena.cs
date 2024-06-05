@@ -19,9 +19,6 @@ namespace roser.gameobjects
 		public readonly Ball ball;
 		public readonly Paddle paddle;
 
-		public double BallX => ball.X;
-		public double BallY => ball.Y;
-
 		public Brick?[,] Bricks { get; set; }
 
 		public ILevelGenerator LevelGenerator { get; set; }
@@ -57,11 +54,12 @@ namespace roser.gameobjects
 			ball.OnTick(dt);
 		}
 
-		public float _realWidthCoef;
-		public float _realHeightCoef;
+		private float _realWidthCoef;
+		private float _realHeightCoef;
 
-		public double RealWidthCoef => _realWidthCoef;
-		public double RealHeightCoef => _realHeightCoef;
+		public float RealWidthCoef => _realWidthCoef;
+
+		public float RealHeightCoef => _realHeightCoef;
 
 		public void SetRealWidth(float width)
 		{

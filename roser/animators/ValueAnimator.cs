@@ -16,7 +16,7 @@
 			_time = time;
 		}
 
-		public double TimeLeft { get; set; } = time;
+		public double TimeLeft { get; private set; } = time;
 
 		protected double a = 2 * (to - from) / (time * time);
 		protected double v = 0;

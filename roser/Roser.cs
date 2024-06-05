@@ -3,7 +3,6 @@ using roser;
 using roser.native;
 using roser.scenes;
 using System.Runtime.InteropServices;
-using System.Text;
 
 internal partial class Roser
 {
@@ -23,7 +22,7 @@ internal partial class Roser
 	{
 #if DEBUG
 		AllocConsole();
-		IntPtr stdHandle = GetStdHandle(-11);
+		nint stdHandle = GetStdHandle(-11);
 		SafeFileHandle safeFileHandle = new(stdHandle, true);
 		FileStream fileStream = new(safeFileHandle, FileAccess.Write);
 		StreamWriter standardOutput = new(fileStream)

@@ -27,7 +27,7 @@ namespace roser
 
 		public abstract void OnTick(double dt);
 
-		protected virtual void DisposeView()
+		protected virtual void DisposeScene()
 		{
 
 		}
@@ -139,7 +139,7 @@ namespace roser
 			{
 				if (disposing)
 				{
-					DisposeView();
+					DisposeScene();
 				}
 
 				disposedValue = true;

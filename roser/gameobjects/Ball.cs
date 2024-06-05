@@ -34,43 +34,33 @@ namespace roser.gameobjects
 				// Since we have constant brick size, we can bound check bricks faster
 				// This won't work with variable brick size
 				float brickSize = arena.LevelGenerator.GetBrickSize();
-				const float d = Radius * 2;
-				// Doesn't really work if brickSize > d, this is bad workaround
-				int rel = (int)(d / brickSize);
-				int addition = rel == 0 ? 1 : 0;
-				// Neighbourhood 
-				int n = rel + 1;
-				int bX = (int)((X - Radius) / brickSize);
-				int bY = (int)((Y - Radius) / brickSize);
-				if (bX < 0)
-					bX = 0;
-				if (bY < 0)
-					bY = 0;
+
+				int bXStart = (int)((X - Radius) / brickSize);
+				int bXEnd = (int)((X + Radius) / brickSize);
+				int bYStart = (int)((Y - Radius) / brickSize);
+				int bYEnd = (int)((Y + Radius) / brickSize);
+				if (bXStart < 0)
+					bXStart = 0;
+				if (bYStart < 0)
+					bYStart = 0;
 
 				int widthL = bricks.GetLength(0);
 				int heightL = bricks.GetLength(1);
 
-				if (bY < heightL)
+				if (bYStart < heightL)
 				{
-					for (int i = 0; i < (n + addition); i++)
+					for (int i = bXStart; i <= bXEnd; i++)
 					{
-						int xI = bX + i;
-						if (xI < 0)
+						if (i >= widthL)
 							continue;
-						if (xI >= widthL)
-							break;
-						for (int j = 0; j < (n + addition); j++)
+						for (int j = bYStart; j <= bYEnd; j++)
 						{
-							int yI = bY + j;
-							if (yI < 0)
-								continue;
-							if (yI >= heightL)
+							if (j >= heightL)
 								break;
-							if (bricks[xI, yI] != null)
-							{
-								bricks[xI, yI] = null;
-								arena.BricksLeft--;
-							}
+							if (bricks[i, j] == null)
+								continue;
+							bricks[i, j] = null;
+							arena.BricksLeft--;
 						}
 					}
 					if (arena.BricksLeft == 0)
@@ -82,7 +72,6 @@ namespace roser.gameobjects
 				{
 					arena.OnBottomCollision();
 					return;
-					//BounceFromBottom();
 				}
 				else if (Y - Radius <= 0)
 				{
@@ -98,12 +87,6 @@ namespace roser.gameobjects
 				}
 
 			}
-		}
-
-		public void BounceFromBottom()
-		{
-			Y = arena.BoundsRect.Bottom - Radius;
-			vy = -vy;
 		}
 
 		public void BounceFromTop()

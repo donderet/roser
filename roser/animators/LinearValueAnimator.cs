@@ -10,7 +10,7 @@
 
 		public double Value { get; set; } = from;
 
-		public double TimeLeft { get; set; } = time;
+		public double TimeLeft { get; private set; } = time;
 
 		public void To(double to, int time)
 		{

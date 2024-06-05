@@ -310,7 +310,7 @@ namespace roser
 			}
 			try
 			{
-				DxgiPresentOptions options = fullScreen ? DxgiPresentOptions.None : (DxgiPresentOptions)0x00000200UL;
+				DxgiPresentOptions options = SaveFile.IsFullscreen ? DxgiPresentOptions.None : (DxgiPresentOptions)0x00000200UL;
 				swapChain.Present(0, options);
 			}
 			catch (Exception e)
@@ -319,16 +319,12 @@ namespace roser
 			}
 		}
 
-		private bool fullScreen = false;
-
 		public void SetFullScreen(bool fullScreen)
 		{
-			this.fullScreen = fullScreen;
 			swapChain.SetFullscreenState(fullScreen);
 		}
 
-		public void OnMessage(WM msg, nint wParam,
-			nint lParam)
+		public void OnMessage(WM msg, nint wParam, nint lParam)
 		{
 			CurrentScene?.OnMessage(msg, wParam, lParam);
 		}

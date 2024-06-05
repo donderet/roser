@@ -24,14 +24,17 @@ namespace roser.scenes
 		private D2D1Ellipse ballEllipse;
 		private readonly Arena arena = new();
 
+#if DEBUG
 		private D2D1SolidColorBrush? textBrush;
 		DWriteTextFormat textFormat;
-
-		protected override void DisposeView()
+#endif
+		protected override void DisposeScene()
 		{
 			boundsBrush?.Dispose();
+#if DEBUG
 			textBrush?.Dispose();
 			textFormat?.Dispose();
+#endif
 			opacityBrush?.Dispose();
 			foreach (BrushWrapper brushWrapper in brushPool)
 			{
@@ -54,12 +57,14 @@ namespace roser.scenes
 				opacityAnimator.To(1, 100);
 				OnFadeEnd = WndManager.SetScene<VictoryScene>;
 			};
-			DisposeView();
+			DisposeScene();
 			boundsBrush = renderTarget.CreateSolidColorBrush(new(0xff_ff_ff));
 
 			D2D1ColorF color = new(0xaa0000);
+#if DEBUG
 			textFormat = dwriteFactory.CreateTextFormat("Arial", dwriteFactory.GetSystemFontCollection(), DWriteFontWeight.Light, DWriteFontStyle.Normal, DWriteFontStretch.Normal, 18, "uk-UA");
 			textBrush = renderTarget.CreateSolidColorBrush(color);
+#endif
 			paddleRoundedRect.RadiusX = 3;
 			paddleRoundedRect.RadiusY = 3;
 			opacityBrush = renderTarget.CreateSolidColorBrush(new(0x0u));
@@ -131,11 +136,11 @@ namespace roser.scenes
 			paddleRect.Bottom = paddleRect.Top + paddleHeight;
 			paddleRoundedRect.Rect = paddleRect;
 
-			paddleRotation = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
+			paddleRotation = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena.RealWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena.RealHeightCoef / 2)));
 
 #if DEBUG
 			renderTarget.DrawText(string.Format("Frame time: {0:n2}\nTick time: {1:n2}\nFrame: {2}", WindowManager.FrameTime, WindowManager.TickTime, frame), textFormat, new(0, 0, Width, Height), textBrush);
-			var ghostRot = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena._realWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena._realHeightCoef / 2)));
+			var ghostRot = D2D1Matrix3X2F.Rotation(arena.paddle.Angle, new(paddleRect.Left + (Paddle.Width * arena.RealWidthCoef / 2), paddleRect.Top + (Paddle.Height * arena.RealHeightCoef / 2)));
 
 			renderTarget.DrawRoundedRectangle(paddleRoundedRect, textBrush);
 

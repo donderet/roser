@@ -13,24 +13,24 @@ namespace roser.native
 		{
 			public uint cbSize;
 			public uint style;
-			public IntPtr lpfnWndProc;
+			public nint lpfnWndProc;
 			public int cbClsExtra;
 			public int cbWndExtra;
-			public IntPtr hInstance;
-			public IntPtr hIcon;
-			public IntPtr hCursor;
-			public IntPtr hbrBackground;
+			public nint hInstance;
+			public nint hIcon;
+			public nint hCursor;
+			public nint hbrBackground;
 			[MarshalAs(UnmanagedType.LPWStr)]
 			public string lpszMenuName;
 			[MarshalAs(UnmanagedType.LPWStr)]
 			public string lpszClassName;
-			public IntPtr hIconSm;
+			public nint hIconSm;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct PAINTSTRUCT
 		{
-			public IntPtr hdc;
+			public nint hdc;
 			public bool fErase;
 			public Rectangle rcPaint;
 			public bool fRestore;
@@ -41,7 +41,7 @@ namespace roser.native
 		[StructLayout(LayoutKind.Sequential, Pack = 8)]
 		public struct MSG
 		{
-			public IntPtr hwnd;
+			public nint hwnd;
 			public WM message;
 			public UIntPtr wParam;
 			public UIntPtr lParam;
@@ -49,7 +49,7 @@ namespace roser.native
 			public Point pt;
 		}
 
-		public delegate IntPtr WndProcDelegate(IntPtr hWnd, WM msg, IntPtr wParam, IntPtr lParam);
+		public delegate nint WndProcDelegate(nint hWnd, WM msg, nint wParam, nint lParam);
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -61,14 +61,14 @@ namespace roser.native
 
 		[LibraryImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool ShowWindow(IntPtr hWnd, SW nCmdShow);
+		public static partial bool ShowWindow(nint hWnd, SW nCmdShow);
 
 		[LibraryImport("user32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static partial bool DestroyWindow(IntPtr hWnd);
+		public static partial bool DestroyWindow(nint hWnd);
 
 		[LibraryImport("user32.dll", SetLastError = true)]
-		public static partial IntPtr CreateWindowExW(
+		public static partial nint CreateWindowExW(
 			WsEx dwExStyle,
 			[MarshalAs(UnmanagedType.LPWStr)]
 			string lpClassName,
@@ -79,26 +79,26 @@ namespace roser.native
 			int y,
 			int nWidth,
 			int nHeight,
-			IntPtr hWndParent,
-			IntPtr hMenu,
-			IntPtr hInstance,
-			IntPtr lpParam
+			nint hWndParent,
+			nint hMenu,
+			nint hInstance,
+			nint lpParam
 		);
 
 		[DllImport("user32.dll", SetLastError = true)]
-		public static extern UInt16 RegisterClassW(in WNDCLASSEX lpWndClass);
+		public static extern ushort RegisterClassW(in WNDCLASSEX lpWndClass);
 
 		[LibraryImport("user32.dll")]
-		public static partial IntPtr DefWindowProcW(IntPtr hWnd, WM uMsg, IntPtr wParam, IntPtr lParam);
+		public static partial nint DefWindowProcW(nint hWnd, WM uMsg, nint wParam, nint lParam);
 
 		[DllImport("user32.dll")]
-		public static extern IntPtr BeginPaint(IntPtr hwnd, out PAINTSTRUCT lpPaint);
+		public static extern nint BeginPaint(nint hwnd, out PAINTSTRUCT lpPaint);
 
 		[DllImport("user32.dll")]
-		public static extern bool GetClientRect(IntPtr hWnd, out Rectangle lpRect);
+		public static extern bool GetClientRect(nint hWnd, out Rectangle lpRect);
 
 		[DllImport("user32.dll")]
-		public static extern bool EndPaint(IntPtr hWnd, ref PAINTSTRUCT lpPaint);
+		public static extern bool EndPaint(nint hWnd, ref PAINTSTRUCT lpPaint);
 
 		[LibraryImport("user32.dll")]
 		public static partial void PostQuitMessage(int nExitCode);
@@ -110,14 +110,14 @@ namespace roser.native
 		public static partial void PostMessageW(nint hwnd, WM msg, nint wParam, nint lParam);
 
 		[LibraryImport("user32.dll")]
-		public static partial IntPtr LoadIconW(
-			IntPtr hInstance,
+		public static partial nint LoadIconW(
+			nint hInstance,
 			[MarshalAs(UnmanagedType.LPWStr)]
 			string lpIconName
 		);
 
 		[DllImport("user32.dll")]
-		public static extern IntPtr DispatchMessageW(ref MSG lpmsg);
+		public static extern nint DispatchMessageW(ref MSG lpmsg);
 
 		[DllImport("user32.dll")]
 		public static extern bool TranslateMessage(ref MSG lpMsg);
@@ -125,7 +125,7 @@ namespace roser.native
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern int GetMessageW(
 			out MSG lpMsg,
-			IntPtr hWnd,
+			nint hWnd,
 			uint wMsgFilterMin,
 			uint wMsgFilterMax
 		);
@@ -133,15 +133,15 @@ namespace roser.native
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern int PeekMessageW(
 			out MSG lpMsg,
-			IntPtr hWnd,
+			nint hWnd,
 			uint wMsgFilterMin,
 			uint wMsgFilterMax,
 			PM wRemoveMsg
 		);
 
 		[LibraryImport("user32.dll")]
-		public static partial IntPtr LoadCursorW(
-			IntPtr hInstance,
+		public static partial nint LoadCursorW(
+			nint hInstance,
 			IDC lpCursorName
 		);
 

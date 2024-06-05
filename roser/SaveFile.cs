@@ -1,8 +1,5 @@
 ﻿using roser.i18n;
-using System.Runtime.InteropServices;
-using System.Text;
 using static roser.i18n.Language;
-using static roser.native.Kernel32;
 
 namespace roser
 {

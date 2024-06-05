@@ -14,7 +14,6 @@ namespace roser.gameobjects
 		public bool MovingRight { get; set; } = false;
 		public bool MovingLeft { get; set; } = false;
 		public D2D1Matrix3X2F PaddleRotation { get; set; }
-		private D2D1Matrix3X2F defaultRotation = D2D1Matrix3X2F.Rotation(0);
 
 		public float Angle { get; set; }
 

@@ -16,7 +16,7 @@ namespace roser.scenes
 		protected D2D1SolidColorBrush? brush;
 		protected D2D1SolidColorBrush? fadeBrush;
 
-		protected override void DisposeView()
+		protected override void DisposeScene()
 		{
 			textLayout?.Dispose();
 			textLayout = null;
@@ -48,7 +48,7 @@ namespace roser.scenes
 
 		public override void CreateResources(D2D1RenderTarget renderTarget, DWriteFactory dwriteFactory)
 		{
-			DisposeView();
+			DisposeScene();
 			particlesManager.Height = Height;
 			particlesManager.Width = Width;
 			particlesManager.CreateResources(renderTarget);

@@ -57,9 +57,9 @@ namespace roser.scenes
 			closeBounds = new(0, marginTop, emojiSize, Height);
 		}
 
-		protected override void DisposeView()
+		protected override void DisposeScene()
 		{
-			base.DisposeView();
+			base.DisposeScene();
 			globeTextLayout?.Dispose();
 			emojiBrush?.Dispose();
 		}

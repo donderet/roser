@@ -4,7 +4,6 @@ using static roser.native.DwmApi;
 using roser.native;
 using System.Diagnostics;
 using roser.i18n;
-using JeremyAnsel.DirectX.DWrite;
 
 namespace roser
 {
@@ -42,7 +41,7 @@ namespace roser
 
 			if (RegisterClassW(in windowClass) == 0)
 			{
-				throw new Exception("Could not register window class. Error code: " + Marshal.GetLastWin32Error());
+				throw new InvalidOperationException("Could not register window class. Error code: " + Marshal.GetLastWin32Error());
 			}
 
 			handle = CreateWindowExW(
@@ -71,7 +70,6 @@ namespace roser
 		public void ShowWindow()
 		{
 			User32.ShowWindow(handle, SW.Normal);
-			//SetWindowDisplayAffinity(handle, 0x00000000);
 			MSG msg = new();
 			while (msg.message != WM.Paint)
 			{
@@ -128,14 +126,6 @@ namespace roser
 
 		private nint WndProc(nint hWnd, WM msg, nint wParam, nint lParam)
 		{
-			//if (msg != WM.SetCursor && msg != WM.MouseFirst && msg != WM.MouseMove && msg != WM.NcHitTest && msg != WM.NcMouseMove)
-			//	LogI("" + msg);
-			//if (msg == WM.SysCommand)
-			//{
-			//	LogI("Recieved syscom");
-			//	LogI("wParam: " + wParam);
-			//	LogI("lParam: " + lParam);
-			//}
 			switch (msg)
 			{
 				// Any titlebar click blocks the thread until the mouse button is released
@@ -143,23 +133,16 @@ namespace roser
 				// Great API design by Micros*ft, as always
 				// TODO: just pause the game when resizing/moving
 				case WM.SysCommand:
-					// Undocumented values (thanks, Microsoft):
+					// Undocumented values (thanks, Micros*ft):
 					// 0xF012 - just title bar click
 					// 0xF000 - right corner resize, but documented as resize ???
 					// 0xF001 - left corner resize
 					// 0xF006 - bottom corner resize
-					//if (wParam != 0xF012 && wParam != 0xF010 && wParam != 0xF002 && wParam != 0xF000 && wParam != 0xF001 && wParam != 0xF006)
-					//	break;
 					if (wParam == 0xF020)
 					{
 						minimized = true;
 						LogI("Window is minimized");
 					}
-					//else if (wParam == 0xF120)
-					//{
-					//	LogI("Window is restored");
-					//	minimized = false;
-					//}
 					break;
 				case WM.KillFocus:
 					if (fullScreen)

@@ -23,9 +23,11 @@ namespace roser.generators
 				for (int column = -radius; column <= radius; column++)
 				{
 					if (Math.Sqrt(row * row + column * column) <= radius)
+					{
 						bricks[currX, currY] = new(art, currX * brickSize, currY * brickSize, brickSize, brickSize);
+						brickCount++;
+					}
 					currX++;
-					brickCount++;
 				}
 				currX = 0;
 				currY++;
