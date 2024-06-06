@@ -92,7 +92,7 @@ namespace roser
 					out deviceContext
 				);
 			}
-			
+
 			PrintAdapterInfo();
 		}
 
@@ -243,7 +243,7 @@ namespace roser
 			{
 				ResizeScene(CurrentScene);
 			}
-			
+
 		}
 
 		public void CreateSceneResources(AbstractScene scene)
@@ -276,7 +276,7 @@ namespace roser
 		public void DrawCurrentScene()
 		{
 			if (CurrentScene == null)
-				return; 
+				return;
 			DrawScene(CurrentScene);
 		}
 
@@ -341,6 +341,8 @@ namespace roser
 				CurrentScene = null;
 				ReleaseWindowSizeDependentResources();
 				ReleaseDeviceResources();
+				d2dFactory.Release();
+				dwritefactory.Release();
 			}
 			disposed = true;
 		}
